@@ -7,6 +7,7 @@ const UserRouter = require("./Routes/UserRouter")
 const CustomerRouter = require("./Routes/CustomerRouter")
 const amcRouter = require("./Routes/AmcRouter")
 const LookingRouter = require("./Routes/lookingRoutes")
+const PurposeRouter = require("./Routes/purposeRoutes")
 
 const app = express()
 app.use(cors())
@@ -22,6 +23,7 @@ app.use("/api", UserRouter)
 app.use("/api", CustomerRouter)
 app.use("/api", amcRouter)
 app.use("/api", LookingRouter)
+app.use("/api", PurposeRouter)
 
 app.listen(process.env.PORT, () => {
     console.log(`Server Is Running At ${process.env.PORT}`)
