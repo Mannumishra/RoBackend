@@ -1,4 +1,4 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
 const amcSchema = new mongoose.Schema({
     clientName: {
@@ -8,9 +8,17 @@ const amcSchema = new mongoose.Schema({
     service: {
         type: String,
         required: true
+    },
+    fromDate: {
+        type: String,
+        required: true
+    },
+    toDate: {
+        type: String,
+        required: true
     }
-})
+});
 
-const amcModel = mongoose.model("AMC", amcSchema)
+const amcModel = mongoose.model("AMC", amcSchema);
 
-module.exports = amcModel
+module.exports = amcModel;

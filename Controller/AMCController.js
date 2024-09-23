@@ -4,17 +4,19 @@ const amcModel = require('../Model/AMCModel');
 // Create AMC
 const createAMC = async (req, res) => {
     try {
-        const { clientName, service } = req.body;
-        if (!clientName || !service) {
+        const { clientName, service, fromDate, toDate } = req.body;
+        if (!clientName || !service || !fromDate || !toDate) {
             return res.status(400).json({
                 success: false,
-                message: "Both clientName and service are required"
+                message: "clientName, service, fromDate, and toDate are required"
             });
         }
 
         const newAmc = new amcModel({
             clientName,
-            service
+            service,
+            fromDate,
+            toDate
         });
 
         await newAmc.save();
@@ -72,7 +74,7 @@ const getAMCById = async (req, res) => {
 // Update AMC
 const updateAMC = async (req, res) => {
     try {
-        const { clientName, service } = req.body;
+        const { clientName, service, fromDate, toDate } = req.body;
         const amcRecord = await amcModel.findById(req.params.id);
 
         if (!amcRecord) {
@@ -84,6 +86,8 @@ const updateAMC = async (req, res) => {
 
         amcRecord.clientName = clientName || amcRecord.clientName;
         amcRecord.service = service || amcRecord.service;
+        amcRecord.fromDate = fromDate || amcRecord.fromDate;
+        amcRecord.toDate = toDate || amcRecord.toDate;
 
         await amcRecord.save();
         res.status(200).json({
