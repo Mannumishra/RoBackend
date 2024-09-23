@@ -4,6 +4,7 @@ const express = require("express")
 const cors = require("cors")
 const { connectDatabase } = require("./db/ConnectDB")
 const UserRouter = require("./Routes/UserRouter")
+const CustomerRouter = require("./Routes/CustomerRouter")
 
 const app = express()
 app.use(cors())
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
 
 
 app.use("/api", UserRouter)
+app.use("/api", CustomerRouter)
 
 app.listen(process.env.PORT, () => {
     console.log(`Server Is Running At ${process.env.PORT}`)
