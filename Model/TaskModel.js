@@ -8,7 +8,7 @@ const taskSchema = new mongoose.Schema({
     },
     fieldExecutiveName: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "user",
+        ref: "Vender",
         required: true
     },
     lookingFor: {

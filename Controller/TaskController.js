@@ -2,7 +2,8 @@ const CustmorModel = require("../Model/CustmorModel");
 const LookingModel = require("../Model/LookingForModel");
 const PurposeModel = require("../Model/PurposeOfVisitModel");
 const TaskModel = require("../Model/TaskModel");
-const userModel = require("../Model/UserModel");
+const VenderModel = require("../Model/VenderModel");
+
 
 
 // Create a new Task
@@ -12,7 +13,7 @@ const createTask = async (req, res) => {
 
         // Check if the customer, field executive, lookingFor, and visitePurpose exist
         const customer = await CustmorModel.findById(customerName);
-        const fieldExecutive = await userModel.findById(fieldExecutiveName);
+        const fieldExecutive = await VenderModel.findById(fieldExecutiveName);
         const lookingForRecord = await LookingModel.findById(lookingFor);
         const purpose = await PurposeModel.findById(visitePurpose);
 
@@ -43,10 +44,10 @@ const createTask = async (req, res) => {
 const getAllTasks = async (req, res) => {
     try {
         const tasks = await TaskModel.find()
-            .populate('customerName')
-            .populate('fieldExecutiveName')
-            .populate('lookingFor')
-            .populate('visitePurpose');
+            .populate({path :'customerName' ,select:"-_id -__v -email"})
+            .populate({ path: "fieldExecutiveName" ,select:'-_id -__v -password -createdAt -updatedAt -email' })
+            .populate({path:'lookingFor' ,select:'-_id -__v'})
+            .populate({path:'visitePurpose' ,select:'-_id -lookingFor -__v'});
         res.status(200).json({ success: true, tasks });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -80,7 +81,7 @@ const updateTask = async (req, res) => {
 
         // Check if references are valid
         const customer = await CustmorModel.findById(customerName);
-        const fieldExecutive = await userModel.findById(fieldExecutiveName);
+        const fieldExecutive = await VenderModel.findById(fieldExecutiveName);
         const lookingForRecord = await LookingModel.findById(lookingFor);
         const purpose = await PurposeModel.findById(visitePurpose);
 
