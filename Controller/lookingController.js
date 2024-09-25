@@ -17,7 +17,7 @@ const createLookingFor = async (req, res) => {
         });
 
         await newLookingFor.save();
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "LookingFor entry created successfully",
             data: newLookingFor

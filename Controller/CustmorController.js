@@ -30,7 +30,7 @@ const createCustomer = async (req, res) => {
 
         await newCustomer.save();
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "Customer created successfully",
             data: newCustomer

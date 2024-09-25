@@ -20,7 +20,7 @@ const createAMC = async (req, res) => {
         });
 
         await newAmc.save();
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "AMC record created successfully",
             data: newAmc

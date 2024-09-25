@@ -32,7 +32,7 @@ const createService = async (req, res) => {
         });
 
         const savedServiceItem = await newServiceItem.save();
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "Service created successfully",
             data: savedServiceItem,

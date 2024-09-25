@@ -30,7 +30,7 @@ const createPurpose = async (req, res) => {
         });
 
         await newPurpose.save();
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             message: "Purpose of Visit created successfully",
             data: newPurpose
