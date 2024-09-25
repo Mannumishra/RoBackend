@@ -58,10 +58,10 @@ const getTaskById = async (req, res) => {
     try {
         const { id } = req.params;
         const task = await TaskModel.findById(id)
-            .populate('customerName')
-            .populate('fieldExecutiveName')
-            .populate('lookingFor')
-            .populate('visitePurpose');
+            .populate({path :'customerName' ,select:"-_id -__v -email"})
+            .populate({ path: "fieldExecutiveName" ,select:'-_id -__v -password -createdAt -updatedAt -email' })
+            .populate({path:'lookingFor' ,select:'-_id -__v'})
+            .populate({path:'visitePurpose' ,select:'-_id -lookingFor -__v'});
 
         if (!task) {
             return res.status(404).json({ success: false, message: "Task not found" });
@@ -100,10 +100,10 @@ const updateTask = async (req, res) => {
                 time
             },
             { new: true }
-        ).populate('customerName')
-            .populate('fieldExecutiveName')
-            .populate('lookingFor')
-            .populate('visitePurpose');
+        ).populate({path :'customerName' ,select:"-_id -__v -email"})
+            .populate({ path: "fieldExecutiveName" ,select:'-_id -__v -password -createdAt -updatedAt -email' })
+            .populate({path:'lookingFor' ,select:'-_id -__v'})
+            .populate({path:'visitePurpose' ,select:'-_id -lookingFor -__v'});
 
         if (!updatedTask) {
             return res.status(404).json({ success: false, message: "Task not found" });

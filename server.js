@@ -10,6 +10,7 @@ const LookingRouter = require("./Routes/lookingRoutes")
 const PurposeRouter = require("./Routes/purposeRoutes")
 const TaskRouter = require("./Routes/TaskRouter")
 const VenderRouter = require("./Routes/VenderRouter")
+const itemServiceRoutes = require("./Routes/itemServiceRoutes")
 
 const app = express()
 app.use(cors())
@@ -28,6 +29,7 @@ app.use("/api", LookingRouter)
 app.use("/api", PurposeRouter)
 app.use("/api", TaskRouter)
 app.use("/api", VenderRouter)
+app.use("/api", itemServiceRoutes)
 
 app.listen(process.env.PORT, () => {
     console.log(`Server Is Running At ${process.env.PORT}`)
