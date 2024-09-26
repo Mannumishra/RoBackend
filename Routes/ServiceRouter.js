@@ -2,11 +2,11 @@ const { createService, getAllServices, getServiceById, updateService, deleteServ
 
 const ServiceRouter = require("express").Router()
 
-ServiceRouter.post("/add-new-service" , createService)
-ServiceRouter.get("/get-new-service" , getAllServices)
-ServiceRouter.get("/get-single-new-service/:id" , getServiceById)
-ServiceRouter.put("/update-new-service/:id" , updateService)
-ServiceRouter.delete("/delete-new-service/:id" , deleteService)
+ServiceRouter.post("/create-bill" , createService)
+ServiceRouter.get("/get-bill" , getAllServices)
+ServiceRouter.get("/get-single-bill/:id" , getServiceById)
+ServiceRouter.put("/update-bill/:id" , updateService)
+ServiceRouter.delete("/delete-bill/:id" , deleteService)
 
 
 module.exports = ServiceRouter
