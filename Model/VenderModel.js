@@ -11,29 +11,14 @@ const venderSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, "Email is required"],
-        unique: true,
-        match: [/.+@.+\..+/, "Please enter a valid email address"],
     },
     phoneNumber: {
         type: Number,
         required: [true, "Phone number is required"],
-        unique: true,
-        validate: {
-            validator: function (v) {
-                return /^\d{10}$/.test(v);
-            },
-            message: "Phone number must be a 10-digit number",
-        },
     },
     whatsappNumber: {
         type: Number,
         required: [true, "WhatsApp number is required"],
-        validate: {
-            validator: function (v) {
-                return /^\d{10}$/.test(v);
-            },
-            message: "WhatsApp number must be a 10-digit number",
-        },
     },
     address: {
         type: String,
