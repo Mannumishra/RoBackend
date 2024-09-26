@@ -44,10 +44,10 @@ const createTask = async (req, res) => {
 const getAllTasks = async (req, res) => {
     try {
         const tasks = await TaskModel.find()
-            .populate({path :'customerName' ,select:"-_id -__v -email"})
-            .populate({ path: "fieldExecutiveName" ,select:'-_id -__v -password -createdAt -updatedAt -email' })
-            .populate({path:'lookingFor' ,select:'-_id -__v'})
-            .populate({path:'visitePurpose' ,select:'-_id -lookingFor -__v'});
+            .populate({path :'customerName' ,select:"-__v -email"})
+            .populate({ path: "fieldExecutiveName" ,select:'-__v -password -createdAt -updatedAt -email' })
+            .populate({path:'lookingFor' ,select:'-__v'})
+            .populate({path:'visitePurpose' ,select:'-lookingFor -__v'});
         res.status(200).json({ success: true, tasks });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
@@ -58,10 +58,10 @@ const getTaskById = async (req, res) => {
     try {
         const { id } = req.params;
         const task = await TaskModel.findById(id)
-            .populate({path :'customerName' ,select:"-_id -__v -email"})
-            .populate({ path: "fieldExecutiveName" ,select:'-_id -__v -password -createdAt -updatedAt -email' })
-            .populate({path:'lookingFor' ,select:'-_id -__v'})
-            .populate({path:'visitePurpose' ,select:'-_id -lookingFor -__v'});
+            .populate({path :'customerName' ,select:"-__v -email"})
+            .populate({ path: "fieldExecutiveName" ,select:'-__v -password -createdAt -updatedAt -email' })
+            .populate({path:'lookingFor' ,select:'-__v'})
+            .populate({path:'visitePurpose' ,select:'-lookingFor -__v'});
 
         if (!task) {
             return res.status(404).json({ success: false, message: "Task not found" });
@@ -100,10 +100,10 @@ const updateTask = async (req, res) => {
                 time
             },
             { new: true }
-        ).populate({path :'customerName' ,select:"-_id -__v -email"})
-            .populate({ path: "fieldExecutiveName" ,select:'-_id -__v -password -createdAt -updatedAt -email' })
-            .populate({path:'lookingFor' ,select:'-_id -__v'})
-            .populate({path:'visitePurpose' ,select:'-_id -lookingFor -__v'});
+        ).populate({path :'customerName' ,select:"-__v -email"})
+            .populate({ path: "fieldExecutiveName" ,select:'-__v -password -createdAt -updatedAt -email' })
+            .populate({path:'lookingFor' ,select:'-__v'})
+            .populate({path:'visitePurpose' ,select:'-lookingFor -__v'});
 
         if (!updatedTask) {
             return res.status(404).json({ success: false, message: "Task not found" });
