@@ -35,7 +35,7 @@ const createVender = async (req, res) => {
             }
             return res.status(400).json({
                 success: false,
-                message :"phone number is already registered with us"
+                message: "phone number is already registered with us"
             });
         }
 
@@ -55,7 +55,8 @@ const createVender = async (req, res) => {
         console.log(error)
         res.status(500).json({
             success: false,
-            message: "Internal Server Error"
+            message: "Internal Server Error",
+            error: error
         })
     }
 }

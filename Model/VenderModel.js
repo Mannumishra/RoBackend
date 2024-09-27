@@ -13,11 +13,11 @@ const venderSchema = new mongoose.Schema({
         required: [true, "Email is required"],
     },
     phoneNumber: {
-        type: Number,
+        type: String,
         required: [true, "Phone number is required"],
     },
     whatsappNumber: {
-        type: Number,
+        type: String,
         required: [true, "WhatsApp number is required"],
     },
     address: {
