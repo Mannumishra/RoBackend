@@ -71,7 +71,10 @@ const createDetails = async (req, res) => {
 const getDetails = async (req, res) => {
     try {
         const details = await DetailsModel.find();
-        res.status(200).json(details);
+        res.status(200).json({
+            success:true,
+            data:details
+        });
     } catch (error) {
         console.error("Error Fetching Details:", error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -85,7 +88,10 @@ const getDetailsById = async (req, res) => {
         if (!detail) {
             return res.status(404).json({ message: "Detail not found" });
         }
-        res.status(200).json(detail);
+        res.status(200).json({
+            success:true,
+            data:detail
+        });
     } catch (error) {
         console.error("Error Fetching Detail:", error);
         res.status(500).json({ error: "Internal Server Error" });
@@ -121,7 +127,10 @@ const updateDetails = async (req, res) => {
         // Update other fields
         Object.assign(detail, req.body);
         const updatedDetail = await detail.save();
-        res.status(200).json(updatedDetail);
+        res.status(200).json({
+            success:true,
+            data:updatedDetail
+        });
 
     } catch (error) {
         console.error("Error Updating Details:", error);
