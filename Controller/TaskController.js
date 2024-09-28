@@ -48,7 +48,7 @@ const getAllTasks = async (req, res) => {
             .populate({ path: "fieldExecutiveName" ,select:'-__v -password -createdAt -updatedAt -email' })
             .populate({path:'lookingFor' ,select:'-__v'})
             .populate({path:'visitePurpose' ,select:'-lookingFor -__v'});
-        res.status(200).json({ success: true, tasks });
+        res.status(200).json({ success: true, data:tasks });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
