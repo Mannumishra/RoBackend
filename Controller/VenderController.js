@@ -41,7 +41,7 @@ const createVender = async (req, res) => {
 
         // Count total existing vendors to generate a new ID
         const totalVendors = await VenderModel.countDocuments();
-        const newVendorId = `VEN${totalVendors + 1}`;  // New ID like "VEN1", "VEN2", ...
+        const newVendorId = `DRPP001${totalVendors + 1}`;  
 
         const hashPassword = await bcrypt.hash(password, saltRound)
 

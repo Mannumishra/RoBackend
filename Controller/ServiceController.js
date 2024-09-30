@@ -34,6 +34,7 @@ const createService = async (req, res) => {
         return res.status(200).json(
             {
                 success: true,
+                message:"Bill Genrate Successfully",
                 data: savedService
             }
         );
@@ -47,7 +48,10 @@ const createService = async (req, res) => {
 const getAllServices = async (req, res) => {
     try {
         const services = await MyServiceModel.find().populate({path :"serviceName" ,select:"-__v "});
-        return res.status(200).json(services);
+        return res.status(200).json({
+            success:true,
+            data:services
+        });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server error." });

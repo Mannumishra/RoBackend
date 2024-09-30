@@ -5,7 +5,7 @@ const venderSchema = new mongoose.Schema({
         type: String,
         required: [true, "Name is required"],
     },
-    vendorId: {
+    feuid: {
         type: String
     },
     email: {
