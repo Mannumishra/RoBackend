@@ -8,27 +8,27 @@ const ServiceSchema = new mongoose.Schema({
         required: true
     },
     quantity: {
-        type: Number,
+        type: String,
         required: true
     },
     rate: {
-        type: Number,
+        type: String,
         required: true
     },
     primaryUnits: {
-        type: Number,
+        type: String,
         required: true
     },
     subtotal: {
-        type: Number,
+        type: String,
         required: true
     },
     taxPrice: {
-        type: Number,
+        type: String,
         required: true
     },
     totalAmount: {
-        type: Number,
+        type: String,
         required: true
     }
 });
