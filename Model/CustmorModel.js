@@ -5,6 +5,9 @@ const custmorSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    customerId: {
+        type: String,
+    },
     mobileNumber: {
         type: Number,
         required: true
@@ -27,6 +30,6 @@ const custmorSchema = new mongoose.Schema({
     }
 })
 
-const CustmorModel = mongoose.model("Custmor" ,custmorSchema)
+const CustmorModel = mongoose.model("Custmor", custmorSchema)
 
 module.exports = CustmorModel

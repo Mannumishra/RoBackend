@@ -19,13 +19,17 @@ const createCustomer = async (req, res) => {
             });
         }
 
+        const totalcust = await CustmorModel.countDocuments();
+        const customerId = `DRPC001${totalcust + 1}`;  
+
         const newCustomer = new CustmorModel({
             customerName,
             mobileNumber,
             whatsappNumber,
             email,
             address,
-            state
+            state,
+            customerId:customerId
         });
 
         await newCustomer.save();
