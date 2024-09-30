@@ -44,10 +44,10 @@ const createTask = async (req, res) => {
 const getAllTasks = async (req, res) => {
     try {
         const tasks = await TaskModel.find()
-            .populate({ path: 'customerName', select: "-__v -email" })
-            .populate({ path: "fieldExecutiveName", select: '-__v -password -createdAt -updatedAt -email' })
-            .populate({ path: 'lookingFor', select: '-__v _id' })
-            .populate({ path: 'visitePurpose', select: '-lookingFor -__v _id' });
+            .populate({ path: 'customerName', select: "-__v -email -_id" })
+            .populate({ path: "fieldExecutiveName", select: '-__v -password -createdAt -updatedAt -email -_id' })
+            .populate({ path: 'lookingFor', select: '-__v -_id' })
+            .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
         res.status(200).json({ success: true, data: tasks });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
