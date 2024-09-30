@@ -2,7 +2,8 @@ const mongoose = require("mongoose");
 
 const amcSchema = new mongoose.Schema({
     clientName: {
-        type: String,
+        type: mongoose.Schema.ObjectId,
+        ref: "Custmor",
         required: true
     },
     service: {

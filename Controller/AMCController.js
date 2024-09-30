@@ -26,6 +26,7 @@ const createAMC = async (req, res) => {
             data: newAmc
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -36,7 +37,7 @@ const createAMC = async (req, res) => {
 // Get All AMC Records
 const getAllAMC = async (req, res) => {
     try {
-        const amcRecords = await amcModel.find();
+        const amcRecords = await amcModel.find().populate('clientName');
         res.status(200).json({
             success: true,
             data: amcRecords
@@ -52,7 +53,7 @@ const getAllAMC = async (req, res) => {
 // Get Single AMC by ID
 const getAMCById = async (req, res) => {
     try {
-        const amcRecord = await amcModel.findById(req.params.id);
+        const amcRecord = await amcModel.findById(req.params.id).populate('clientName');
         if (!amcRecord) {
             return res.status(404).json({
                 success: false,
