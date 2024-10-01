@@ -1,14 +1,12 @@
 const LookingModel = require("../Model/LookingForModel");
 const PurposeModel = require("../Model/PurposeOfVisitModel");
+const mongoose = require('mongoose');
 
-
-// Create Purpose of Visit
 const createPurpose = async (req, res) => {
     try {
-        console.log(req.body)
+        console.log(req.body);
         const { lookingFor, visitePurpose } = req.body;
 
-        // Check if lookingFor and visitePurpose are provided
         if (!lookingFor || !visitePurpose) {
             return res.status(400).json({
                 success: false,
@@ -16,15 +14,25 @@ const createPurpose = async (req, res) => {
             });
         }
 
-        // Check if the lookingFor exists in the Looking collection
-        const lookingForRecord = await LookingModel.findById(lookingFor);
-        if (!lookingForRecord) {
-            return res.status(404).json({
+        // Validate if lookingFor is a valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(lookingFor)) {
+            return res.status(400).json({
                 success: false,
-                message: "LookingFor record not found"
+                message: "Invalid 'lookingFor' ID format"
             });
         }
 
+        // Check if the lookingFor exists in the Looking collection
+        const lookingForRecord = await LookingModel.findById(lookingFor);
+        console.log(lookingForRecord);
+        if (!lookingForRecord) {
+            return res.status(404).json({
+                success: false,
+                message: "'lookingFor' record not found"
+            });
+        }
+
+        // Create a new purpose of visit
         const newPurpose = new PurposeModel({
             lookingFor,
             visitePurpose
@@ -37,14 +45,15 @@ const createPurpose = async (req, res) => {
             data: newPurpose
         });
     } catch (error) {
-        console.log(error)
+        console.error(error);
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: error
+            error: error.message  // Send only the error message to the client
         });
     }
 };
+
 
 // Get all Purposes
 const getAllPurposes = async (req, res) => {
