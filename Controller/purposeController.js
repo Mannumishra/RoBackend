@@ -36,6 +36,7 @@ const createPurpose = async (req, res) => {
             data: newPurpose
         });
     } catch (error) {
+        console.log(error)
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
@@ -47,7 +48,7 @@ const createPurpose = async (req, res) => {
 // Get all Purposes
 const getAllPurposes = async (req, res) => {
     try {
-        const purposes = await PurposeModel.find().populate('lookingFor'); // Populate with Looking data
+        const purposes = await PurposeModel.find().populate('lookingFor');
         res.status(200).json({
             success: true,
             data: purposes
