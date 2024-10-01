@@ -5,6 +5,7 @@ const PurposeModel = require("../Model/PurposeOfVisitModel");
 // Create Purpose of Visit
 const createPurpose = async (req, res) => {
     try {
+        console.log(req.body)
         const { lookingFor, visitePurpose } = req.body;
 
         // Check if lookingFor and visitePurpose are provided
