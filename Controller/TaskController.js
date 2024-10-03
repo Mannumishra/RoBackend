@@ -158,6 +158,32 @@ const getTasksByFieldExecutivePhone = async (req, res) => {
 };
 
 
+const getTasksByCoustmorePhone = async (req, res) => {
+    try {
+        const { phoneNumber } = req.body;
+
+        const coustmore = await CustmorModel.findOne({ phoneNumber });
+
+        if (!coustmore) {
+            return res.status(404).json({ success: false, message: "Coustmore not found" });
+        }
+
+        const tasks = await TaskModel.find({ customerName: coustmore._id })
+            .populate({ path: 'customerName', select: '-__v -email -_id' })
+            .populate({ path: 'fieldExecutiveName', select: '-__v -password -createdAt -updatedAt -email -_id' })
+            .populate({ path: 'lookingFor', select: '-__v -_id' })
+            .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
+
+        if (tasks.length === 0) {
+            return res.status(404).json({ success: false, message: "No tasks found for this field executive" });
+        }
+
+        res.status(200).json({ success: true, data: tasks });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 const getTasksByDate = async (req, res) => {
     try {
         const { date } = req.body;
@@ -182,4 +208,4 @@ const getTasksByDate = async (req, res) => {
 
 
 
-module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone ,getTasksByDate };
+module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone, getTasksByDate, getTasksByCoustmorePhone };
