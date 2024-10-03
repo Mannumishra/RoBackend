@@ -131,5 +131,33 @@ const deleteTask = async (req, res) => {
 };
 
 
+const getTasksByFieldExecutivePhone = async (req, res) => {
+    try {
+        const { phoneNumber } = req.params; 
 
-module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask };
+        const fieldExecutive = await VenderModel.findOne({ phoneNumber });
+
+        if (!fieldExecutive) {
+            return res.status(404).json({ success: false, message: "Field executive not found" });
+        }
+
+        const tasks = await TaskModel.find({ fieldExecutiveName: fieldExecutive._id })
+            .populate({ path: 'customerName', select: '-__v -email -_id' })
+            .populate({ path: 'fieldExecutiveName', select: '-__v -password -createdAt -updatedAt -email -_id' })
+            .populate({ path: 'lookingFor', select: '-__v -_id' })
+            .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
+
+        if (tasks.length === 0) {
+            return res.status(404).json({ success: false, message: "No tasks found for this field executive" });
+        }
+
+        res.status(200).json({ success: true, data: tasks });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+
+
+module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone };
