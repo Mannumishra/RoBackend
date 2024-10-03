@@ -2,7 +2,7 @@ const CustmorModel = require("../Model/CustmorModel");
 
 const createCustomer = async (req, res) => {
     try {
-        const { customerName, mobileNumber, whatsappNumber, email, address, state } = req.body;
+        const { customerName, mobileNumber, whatsappNumber, email, address, state, modelName, brandName } = req.body;
         const errorMessage = [];
 
         if (!customerName) errorMessage.push("Customer Name is required");
@@ -11,6 +11,8 @@ const createCustomer = async (req, res) => {
         if (!email) errorMessage.push("Email is required");
         if (!address) errorMessage.push("Address is required");
         if (!state) errorMessage.push("State is required");
+        if (!modelName) errorMessage.push("Model Name Name Is Must Required")
+        if (!brandName) errorMessage.push("Brand Name is Must Required")
 
         if (errorMessage.length > 0) {
             return res.status(400).json({
@@ -20,7 +22,7 @@ const createCustomer = async (req, res) => {
         }
 
         const totalcust = await CustmorModel.countDocuments();
-        const customerId = `DRPC001${totalcust + 1}`;  
+        const customerId = `DRPC001${totalcust + 1}`;
 
         const newCustomer = new CustmorModel({
             customerName,
@@ -29,7 +31,9 @@ const createCustomer = async (req, res) => {
             email,
             address,
             state,
-            customerId:customerId
+            customerId: customerId,
+            brandName,
+            modelName
         });
 
         await newCustomer.save();
@@ -93,7 +97,7 @@ const getCustomerById = async (req, res) => {
 
 const updateCustomer = async (req, res) => {
     try {
-        const { customerName, mobileNumber, whatsappNumber, email, address, state } = req.body;
+        const { customerName, mobileNumber, whatsappNumber, email, address, state, brandName, modelName } = req.body;
 
         const customer = await CustmorModel.findById(req.params.id);
         if (!customer) {
@@ -109,6 +113,8 @@ const updateCustomer = async (req, res) => {
         customer.email = email || customer.email;
         customer.address = address || customer.address;
         customer.state = state || customer.state;
+        customer.brandName = brandName || customer.brandName;
+        customer.modelName = modelName || customer.modelName;
 
         await customer.save();
 

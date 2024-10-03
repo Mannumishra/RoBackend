@@ -27,8 +27,16 @@ const custmorSchema = new mongoose.Schema({
     state: {
         type: String,
         required: true
+    },
+    modelName: {
+        type: String,
+        required: true
+    },
+    brandName: {
+        type: String,
+        required: true
     }
-})
+}, { timestamps: true })
 
 const CustmorModel = mongoose.model("Custmor", custmorSchema)
 
