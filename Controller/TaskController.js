@@ -162,7 +162,7 @@ const getTasksByCoustmorePhone = async (req, res) => {
     try {
         const { phoneNumber } = req.body;
 
-        const coustmore = await CustmorModel.findOne({ phoneNumber });
+        const coustmore = await CustmorModel.findOne({ mobileNumber: phoneNumber });
 
         if (!coustmore) {
             return res.status(404).json({ success: false, message: "Coustmore not found" });
