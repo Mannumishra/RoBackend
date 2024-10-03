@@ -133,7 +133,7 @@ const deleteTask = async (req, res) => {
 
 const getTasksByFieldExecutivePhone = async (req, res) => {
     try {
-        const { phoneNumber } = req.params; 
+        const { phoneNumber } = req.params;
 
         const fieldExecutive = await VenderModel.findOne({ phoneNumber });
 
@@ -158,6 +158,28 @@ const getTasksByFieldExecutivePhone = async (req, res) => {
 };
 
 
+const getTasksByDate = async (req, res) => {
+    try {
+        const { date } = req.params; // Extract date from request parameters
+
+        // Find tasks that match the specified date
+        const tasks = await TaskModel.find({ date: date })
+            .populate({ path: 'customerName', select: '-__v -email -_id' })
+            .populate({ path: 'fieldExecutiveName', select: '-__v -password -createdAt -updatedAt -email -_id' })
+            .populate({ path: 'lookingFor', select: '-__v -_id' })
+            .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
+
+        if (tasks.length === 0) {
+            return res.status(404).json({ success: false, message: "No tasks found for this date" });
+        }
+
+        res.status(200).json({ success: true, data: tasks });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 
-module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone };
+
+
+module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone ,getTasksByDate };
