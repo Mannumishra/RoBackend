@@ -133,7 +133,7 @@ const deleteTask = async (req, res) => {
 
 const getTasksByFieldExecutivePhone = async (req, res) => {
     try {
-        const { phoneNumber } = req.params;
+        const { phoneNumber } = req.body;
 
         const fieldExecutive = await VenderModel.findOne({ phoneNumber });
 
@@ -160,7 +160,7 @@ const getTasksByFieldExecutivePhone = async (req, res) => {
 
 const getTasksByDate = async (req, res) => {
     try {
-        const { date } = req.params; // Extract date from request parameters
+        const { date } = req.body;
 
         // Find tasks that match the specified date
         const tasks = await TaskModel.find({ date: date })

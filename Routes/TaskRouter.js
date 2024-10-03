@@ -11,7 +11,7 @@ TaskRouter.put('/update-task/:id', updateTask);
 TaskRouter.delete('/delete-task/:id', deleteTask);
 
 
-TaskRouter.get('/tasks/field-executive/:phoneNumber', getTasksByFieldExecutivePhone);
-TaskRouter.get('/tasks/date/:date', getTasksByDate);
+TaskRouter.post('/tasks/field-executive', getTasksByFieldExecutivePhone);
+TaskRouter.post('/tasks/date', getTasksByDate);
 
 module.exports = TaskRouter;

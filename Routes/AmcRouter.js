@@ -7,6 +7,6 @@ amcRouter.get("/get-amc", getAllAMC)
 amcRouter.get("/get-single-amc/:id", getAMCById)
 amcRouter.put("/update-amc/:id", updateAMC)
 amcRouter.delete("/delete-amc/:id", deleteAMC)
-amcRouter.get('/filter-amc', getAllBYDateAMC)
+amcRouter.post('/filter-amc', getAllBYDateAMC)
 
 module.exports = amcRouter

@@ -27,8 +27,8 @@ const createAMC = async (req, res) => {
         const newAmc = new amcModel({
             clientName,
             service,
-            fromDate: formattedFromDate, 
-            toDate: formattedToDate,   
+            fromDate: formattedFromDate,
+            toDate: formattedToDate,
         });
 
         await newAmc.save();
@@ -143,7 +143,7 @@ const deleteAMC = async (req, res) => {
 
 const getAllBYDateAMC = async (req, res) => {
     try {
-        const { month, year } = req.query;
+        const { month, year } = req.body;
         let amcRecords = await amcModel.find().populate('clientName');
 
         if (month && year) {
