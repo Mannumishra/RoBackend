@@ -1,60 +1,7 @@
 const amcModel = require('../Model/AMCModel');
 const moment = require('moment');
 
-const getAMCByMonthYear = async (req, res) => {
-    try {
-        const { month, year } = req.query;
-        if (!month || !year) {
-            return res.status(400).json({
-                success: false,
-                message: "Month and year are required"
-            });
-        }
-        console.log("Received Month:", month);
-        console.log("Received Year:", year);
 
-        // Create start and end dates for the exact month and year
-        const startDate = moment(`${year}-${month}-01`, "YYYY-MM-DD").startOf('month'); 
-        const endDate = moment(startDate).endOf('month'); 
-
-        // Log the computed dates
-        console.log("Start Date:", startDate.format("DD-MM-YYYY"));
-        console.log("End Date:", endDate.format("DD-MM-YYYY"));
-
-        // Query to find AMC records that have both fromDate and toDate within the specified month and year
-        const filteredAMCRecords = await amcModel.find({
-            fromDate: {
-                $gte: startDate,
-                $lt: endDate // Ensure it is strictly less than the first day of next month
-            },
-            toDate: {
-                $gte: startDate,
-                $lt: endDate.add(1, 'days').toDate()
-            }
-        }).populate('clientName'); 
-
-        console.log("Filtered AMC Records Count:", filteredAMCRecords.length);
-
-        if (filteredAMCRecords.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No AMC records found for the given month and year"
-            });
-        }
-
-        res.status(200).json({
-            success: true,
-            data: filteredAMCRecords
-        });
-    } catch (error) {
-        console.error("Error fetching AMC records:", error); 
-        res.status(500).json({
-            success: false,
-            message: "Internal Server Error"
-        });
-    }
-};
-   
 
 const createAMC = async (req, res) => {
     try {
@@ -66,11 +13,9 @@ const createAMC = async (req, res) => {
                 message: "clientName, service, fromDate, and toDate are required"
             });
         }
-
         // Parse the dates in DD/MM/YYYY format using moment.js
         const formattedFromDate = moment(fromDate, "DD/MM/YYYY").format("DD/MM/YYYY");
         const formattedToDate = moment(toDate, "DD/MM/YYYY").format("DD/MM/YYYY");
-
         // Check if the dates are valid
         if (!moment(formattedFromDate, "DD/MM/YYYY", true).isValid() || !moment(formattedToDate, "DD/MM/YYYY", true).isValid()) {
             return res.status(400).json({
@@ -82,8 +27,8 @@ const createAMC = async (req, res) => {
         const newAmc = new amcModel({
             clientName,
             service,
-            fromDate: formattedFromDate, // Save in DD/MM/YYYY format
-            toDate: formattedToDate,     // Save in DD/MM/YYYY format
+            fromDate: formattedFromDate, 
+            toDate: formattedToDate,   
         });
 
         await newAmc.save();
@@ -195,11 +140,47 @@ const deleteAMC = async (req, res) => {
     }
 };
 
+
+const getAllBYDateAMC = async (req, res) => {
+    try {
+        const { month, year } = req.query;
+        let amcRecords = await amcModel.find().populate('clientName');
+
+        if (month && year) {
+            const monthInt = parseInt(month, 10);
+            const yearInt = parseInt(year, 10);
+            if (isNaN(monthInt) || monthInt < 1 || monthInt > 12 || isNaN(yearInt)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid month or year. Please provide valid values."
+                });
+            }
+            amcRecords = amcRecords.filter(record => {
+                const fromDate = moment(record.fromDate, "DD/MM/YYYY");
+                return fromDate.month() + 1 === monthInt && fromDate.year() === yearInt;
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: amcRecords
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
+
+
+
 module.exports = {
     createAMC,
     getAllAMC,
     getAMCById,
     updateAMC,
     deleteAMC,
-    getAMCByMonthYear
+    getAllBYDateAMC
+    // getAMCByMonthYear
 };
