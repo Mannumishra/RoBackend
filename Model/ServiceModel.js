@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const ServiceSchema = new mongoose.Schema({
     serviceName: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "ItemService", // Ensure this reference model is defined
+        ref: "ItemService", 
         required: true
     },
     quantity: {
