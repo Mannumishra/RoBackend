@@ -1,8 +1,8 @@
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 const saleModel = require("../Model/SaleModel");
+const { generatePDF } = require("../utils/generatePDF");
 
-// Create a new sale
 exports.createSale = async (req, res) => {
     try {
         const { customer, mobileNumber, services, totalAmount, reciveAmount } = req.body;
@@ -13,8 +13,9 @@ exports.createSale = async (req, res) => {
             return res.status(400).json({ message: "Customer not found" });
         }
 
-        // Validate if all services exist
-        const serviceObjects = await MyServiceModel.find({ _id: { $in: services } });
+        // Fetching services and populating necessary fields
+        const serviceObjects = await MyServiceModel.find({ _id: { $in: services } }).populate('serviceName');
+        
         if (serviceObjects.length !== services.length) {
             return res.status(400).json({ message: "One or more services not found" });
         }
@@ -29,16 +30,28 @@ exports.createSale = async (req, res) => {
         });
 
         const savedSale = await newSale.save();
-        res.status(200).json({
-            success: true,
-            message: "Sale Created Successfully",
-            data: savedSale,
+
+        console.log("Save Sales", savedSale);
+
+        // Generate PDF
+        const pdfBuffer = await generatePDF(savedSale);
+
+        // Send the PDF as a response
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
+            'Content-Length': pdfBuffer.length
         });
+        res.send(pdfBuffer);
+        
     } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).json({ message: "Server Error", error });
     }
 };
+
+
+
 
 // Get all sales
 exports.getSales = async (req, res) => {
@@ -63,7 +76,13 @@ exports.getSales = async (req, res) => {
 // Get a single sale by ID
 exports.getSaleById = async (req, res) => {
     try {
-        const sale = await saleModel.findById(req.params.id).populate("customer").populate("services");
+        const sale = await saleModel.findById(req.params.id).populate("customer").populate({
+            path: "services",
+            populate: {
+                path: "serviceName",
+                model: "ItemService" // Make sure this matches your ItemService model name
+            }
+        });;
         if (!sale) {
             return res.status(404).json({ message: "Sale not found" });
         }
