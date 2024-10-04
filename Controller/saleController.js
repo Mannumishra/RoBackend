@@ -3,6 +3,7 @@ const MyServiceModel = require("../Model/ServiceModel");
 const saleModel = require("../Model/SaleModel");
 // const { generatePDF } = require("../utils/generatePDF");
 
+
 exports.createSale = async (req, res) => {
     try {
         const { customer, mobileNumber, services, totalAmount, reciveAmount } = req.body;
