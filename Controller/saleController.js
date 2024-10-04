@@ -1,7 +1,7 @@
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 const saleModel = require("../Model/SaleModel");
-const { generatePDF } = require("../utils/generatePDF");
+// const { generatePDF } = require("../utils/generatePDF");
 
 exports.createSale = async (req, res) => {
     try {
@@ -15,7 +15,7 @@ exports.createSale = async (req, res) => {
 
         // Fetching services and populating necessary fields
         const serviceObjects = await MyServiceModel.find({ _id: { $in: services } }).populate('serviceName');
-        
+
         if (serviceObjects.length !== services.length) {
             return res.status(400).json({ message: "One or more services not found" });
         }
@@ -31,25 +31,30 @@ exports.createSale = async (req, res) => {
 
         const savedSale = await newSale.save();
 
-        console.log("Save Sales", savedSale);
+        res.status(200).json({
+            success: true,
+            message: "Successfull",
+            data: savedSale
+        })
 
-        // Generate PDF
-        const pdfBuffer = await generatePDF(savedSale);
+        // console.log("Save Sales" ,savedSale)
 
-        // Send the PDF as a response
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
-            'Content-Length': pdfBuffer.length
-        });
-        res.send(pdfBuffer);
-        
+        // // Generate PDF
+        // const pdfBuffer = await generatePDF(savedSale);
+
+        // // Send the PDF as a response
+        // res.set({
+        //     'Content-Type': 'application/pdf',
+        //     'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
+        //     'Content-Length': pdfBuffer.length
+        // });
+        // res.send(pdfBuffer);
+
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: "Server Error", error });
     }
 };
-
 
 
 

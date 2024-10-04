@@ -1,13 +1,17 @@
-const puppeteer = require('puppeteer');
+const pdf = require('html-pdf');
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 
-
+// Function to generate PDF invoice
 const generatePDF = async (saleData) => {
-    const customer = await CustmorModel.findById(saleData.customer);
-    const services = await MyServiceModel.find({ _id: { $in: saleData.services } }).populate('serviceName');
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Fetch customer details
+            const customer = await CustmorModel.findById(saleData.customer);
+            // Fetch services details
+            const services = await MyServiceModel.find({ _id: { $in: saleData.services } }).populate('serviceName');
 
-    const htmlContent = `
+            const htmlContent = `
             <!DOCTYPE html>
             <html lang="en">
             <head>
@@ -140,7 +144,7 @@ const generatePDF = async (saleData) => {
                         </tbody>
                     </table>
 
-                    <p><strong>Invoice Amount in Words:</strong> ${saleData.totalAmount} Only</p>
+                    <p><strong>Invoice Amount in Words:</strong> ${convertNumberToWords(saleData.totalAmount)} Only</p>
 
                     <div class="terms">
                         <p><strong>Terms and Conditions:</strong></p>
@@ -156,17 +160,23 @@ const generatePDF = async (saleData) => {
             </body>
             </html>`;
 
-
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.setContent(htmlContent);
-    const pdfBuffer = await page.pdf({ format: 'A4' });
-    await browser.close();
-
-    return pdfBuffer;
+            pdf.create(htmlContent).toBuffer((err, buffer) => {
+                if (err) return reject(err);
+                resolve(buffer);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 };
 
+// Utility function to convert numbers to words (for invoice amount)
+const convertNumberToWords = (num) => {
+    // You can implement a function to convert numbers to words
+    // For simplicity, returning a placeholder here
+    return "Ten Rupees and Eight Paise";
+};
 
 module.exports = {
     generatePDF
-}
+};
