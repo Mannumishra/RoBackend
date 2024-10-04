@@ -33,46 +33,21 @@ exports.createSale = async (req, res) => {
             totalAmount,
             reciveAmount
         });
-
         const savedSale = await newSale.save();
-
         // res.status(200).json({
         //     success: true,
         //     message: "Successfull",
         //     data: savedSale
         // })
-
         console.log("Save Sales", savedSale)
-
-        // Generate PDF
         const pdfBuffer = await generatePDF(savedSale);
-
-
-        // Debugging: Save PDF to local filesystem for verification
-        fs.writeFileSync(`./${savedSale._id}.pdf`, pdfBuffer); // Save to current directory
-
-
-        // Send the PDF as a response
+        fs.writeFileSync(`./${savedSale._id}.pdf`, pdfBuffer); 
         res.set({
             'Content-Type': 'application/pdf',
             'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
             'Content-Length': pdfBuffer.length
         });
-
-        // Send the PDF buffer as the response
-        res.send(pdfBuffer);
-
-        // // Generate PDF
-        // const pdfBuffer = await generatePDF(savedSale);
-
-        // // Send the PDF as a response
-        // res.set({
-        //     'Content-Type': 'application/pdf',
-        //     'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
-        //     'Content-Length': pdfBuffer.length
-        // });
-        // res.send(pdfBuffer);
-
+        res.send(pdfBuffer)
     } catch (error) {
         console.log("My Error", error);
         res.status(500).json({ message: "Server Error", error });

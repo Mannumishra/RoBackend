@@ -84,7 +84,7 @@ const generatePDF = async (saleData) => {
                     
                     <div class="company-info">
                         <div class="left" style="width: 50%;">
-                            <img src="logo.png" alt="Company Logo" class="logo">
+                            <img src="https://digiindiasolutions.com/images/white-logo.png" alt="Company Logo" class="logo">
                             <p>A S</p>
                             <p>Phone: 7985905058</p>
                             <p>Email: ayushsrivastava5050@gmail.com</p>
