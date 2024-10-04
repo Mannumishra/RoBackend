@@ -1,8 +1,8 @@
-const pdf = require('html-pdf');
+const puppeteer = require('puppeteer');
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 
-// Function to generate PDF invoice
+// Function to generate PDF invoice using Puppeteer
 const generatePDF = async (saleData) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -89,7 +89,6 @@ const generatePDF = async (saleData) => {
                             <p>Phone: 7985905058</p>
                             <p>Email: ayushsrivastava5050@gmail.com</p>
                         </div>
-                      
                     </div>
 
                     <div class="billing-info">
@@ -160,10 +159,18 @@ const generatePDF = async (saleData) => {
             </body>
             </html>`;
 
-            pdf.create(htmlContent).toBuffer((err, buffer) => {
-                if (err) return reject(err);
-                resolve(buffer);
-            });
+            // Launch Puppeteer browser
+            const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+            const page = await browser.newPage();
+            
+            // Set HTML content
+            await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+            // Generate PDF
+            const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+
+            await browser.close();
+            resolve(pdfBuffer);
         } catch (error) {
             reject(error);
         }
