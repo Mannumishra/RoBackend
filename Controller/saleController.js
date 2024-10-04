@@ -1,22 +1,26 @@
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 const saleModel = require("../Model/SaleModel");
-// const { generatePDF } = require("../utils/generatePDF");
+const { generatePDF } = require("../utils/generatePDF");
+const fs = require('fs'); // Add this line
+
 
 
 exports.createSale = async (req, res) => {
     try {
+        console.log(req.body)
         const { customer, mobileNumber, services, totalAmount, reciveAmount } = req.body;
 
         // Validate if customer exists
         const existingCustomer = await CustmorModel.findById(customer);
+        console.log(existingCustomer)
         if (!existingCustomer) {
             return res.status(400).json({ message: "Customer not found" });
         }
 
         // Fetching services and populating necessary fields
         const serviceObjects = await MyServiceModel.find({ _id: { $in: services } }).populate('serviceName');
-
+        console.log(serviceObjects)
         if (serviceObjects.length !== services.length) {
             return res.status(400).json({ message: "One or more services not found" });
         }
@@ -32,13 +36,31 @@ exports.createSale = async (req, res) => {
 
         const savedSale = await newSale.save();
 
-        res.status(200).json({
-            success: true,
-            message: "Successfull",
-            data: savedSale
-        })
+        // res.status(200).json({
+        //     success: true,
+        //     message: "Successfull",
+        //     data: savedSale
+        // })
 
-        // console.log("Save Sales" ,savedSale)
+        console.log("Save Sales", savedSale)
+
+        // Generate PDF
+        const pdfBuffer = await generatePDF(savedSale);
+
+
+        // Debugging: Save PDF to local filesystem for verification
+        fs.writeFileSync(`./${savedSale._id}.pdf`, pdfBuffer); // Save to current directory
+
+
+        // Send the PDF as a response
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
+            'Content-Length': pdfBuffer.length
+        });
+
+        // Send the PDF buffer as the response
+        res.send(pdfBuffer);
 
         // // Generate PDF
         // const pdfBuffer = await generatePDF(savedSale);
@@ -52,7 +74,7 @@ exports.createSale = async (req, res) => {
         // res.send(pdfBuffer);
 
     } catch (error) {
-        console.log(error);
+        console.log("My Error", error);
         res.status(500).json({ message: "Server Error", error });
     }
 };
