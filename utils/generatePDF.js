@@ -159,17 +159,19 @@ const generatePDF = async (saleData) => {
             </body>
             </html>`;
 
-            // Launch Puppeteer browser
-            const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+            // Launch puppeteer
+            const browser = await puppeteer.launch();
             const page = await browser.newPage();
-            
-            // Set HTML content
-            await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
 
-            // Generate PDF
-            const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true });
+            // Set content to page
+            await page.setContent(htmlContent, { waitUntil: 'load' });
 
+            // Generate PDF buffer
+            const pdfBuffer = await page.pdf({ format: 'A4' });
+
+            // Close browser after PDF generation
             await browser.close();
+
             resolve(pdfBuffer);
         } catch (error) {
             reject(error);
@@ -179,8 +181,7 @@ const generatePDF = async (saleData) => {
 
 // Utility function to convert numbers to words (for invoice amount)
 const convertNumberToWords = (num) => {
-    // You can implement a function to convert numbers to words
-    // For simplicity, returning a placeholder here
+    // Simplified conversion for demonstration
     return "Ten Rupees and Eight Paise";
 };
 
