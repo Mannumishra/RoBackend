@@ -5,12 +5,12 @@ const moment = require('moment');
 
 const createAMC = async (req, res) => {
     try {
-        const { clientName, service, fromDate, toDate } = req.body;
+        const { clientName, userID, service, fromDate, toDate } = req.body;
 
         if (!clientName || !service || !fromDate || !toDate) {
             return res.status(400).json({
                 success: false,
-                message: "clientName, service, fromDate, and toDate are required"
+                message: "clientName, userID, service, fromDate, and toDate are required"
             });
         }
         // Parse the dates in DD/MM/YYYY format using moment.js
@@ -27,6 +27,7 @@ const createAMC = async (req, res) => {
         const newAmc = new amcModel({
             clientName,
             service,
+            userID,
             fromDate: formattedFromDate,
             toDate: formattedToDate,
         });
@@ -49,7 +50,7 @@ const createAMC = async (req, res) => {
 // Get All AMC Records
 const getAllAMC = async (req, res) => {
     try {
-        const amcRecords = await amcModel.find().populate('clientName');
+        const amcRecords = await amcModel.find().populate('clientName').populate('userID');
         res.status(200).json({
             success: true,
             data: amcRecords
@@ -65,7 +66,7 @@ const getAllAMC = async (req, res) => {
 // Get Single AMC by ID
 const getAMCById = async (req, res) => {
     try {
-        const amcRecord = await amcModel.findById(req.params.id).populate('clientName');
+        const amcRecord = await amcModel.findById(req.params.id).populate('clientName').populate('userID');
         if (!amcRecord) {
             return res.status(404).json({
                 success: false,
@@ -87,7 +88,7 @@ const getAMCById = async (req, res) => {
 // Update AMC
 const updateAMC = async (req, res) => {
     try {
-        const { clientName, service, fromDate, toDate } = req.body;
+        const { clientName, userID, service, fromDate, toDate } = req.body;
         const amcRecord = await amcModel.findById(req.params.id);
 
         if (!amcRecord) {
@@ -99,6 +100,7 @@ const updateAMC = async (req, res) => {
 
         amcRecord.clientName = clientName || amcRecord.clientName;
         amcRecord.service = service || amcRecord.service;
+        amcRecord.userID = userID || amcRecord.userID; // Updating userID
         amcRecord.fromDate = fromDate || amcRecord.fromDate;
         amcRecord.toDate = toDate || amcRecord.toDate;
 
@@ -144,7 +146,7 @@ const deleteAMC = async (req, res) => {
 const getAllBYDateAMC = async (req, res) => {
     try {
         const { month, year } = req.body;
-        let amcRecords = await amcModel.find().populate('clientName');
+        let amcRecords = await amcModel.find().populate('clientName').populate('userID');
 
         if (month && year) {
             const monthInt = parseInt(month, 10);

@@ -6,6 +6,11 @@ const amcSchema = new mongoose.Schema({
         ref: "Custmor",
         required: true
     },
+    userID: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Vender",
+        required: true
+    },
     service: {
         type: String,
         required: true
