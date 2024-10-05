@@ -67,10 +67,83 @@ const createDetails = async (req, res) => {
     }
 };
 
-// Get all details
+
 const getDetails = async (req, res) => {
     try {
         const details = await DetailsModel.find().populate({
+            path: 'customerDetails',
+            populate: [
+                {
+                    path: 'customerName',
+                    model: 'Custmor', // Correct model name for Customer 
+                },
+                {
+                    path: 'fieldExecutiveName',
+                    model: 'Vender', // Correct model name for Vendor 
+                },
+                {
+                    path: 'lookingFor',
+                    model: 'Looking', // Correct model name for LookingFor 
+                },
+                {
+                    path: 'visitePurpose',
+                    model: 'Purpose'  // Correct model name for PurposeOfVisit 
+                }
+            ]
+        });
+
+        if (!details) {
+            return res.status(404).json({
+                success: false,
+                message: "Record Not Found"
+            });
+        }
+
+        // Transforming details to remove unwanted fields
+        const sanitizedDetails = details.map(detail => {
+            return {
+                ...detail._doc,
+                customerDetails: {
+                    ...detail.customerDetails._doc,
+                    customerName: {
+                        customerName: detail.customerDetails.customerName.customerName,
+                        customerId: detail.customerDetails.customerName.customerId,
+                        mobileNumber: detail.customerDetails.customerName.mobileNumber,
+                        state: detail.customerDetails.customerName.state
+                    },
+                    fieldExecutiveName: {
+                        name: detail.customerDetails.fieldExecutiveName.name,
+                        feuid: detail.customerDetails.fieldExecutiveName.feuid,
+                        phoneNumber: detail.customerDetails.fieldExecutiveName.phoneNumber
+                    },
+                    lookingFor: detail.customerDetails.lookingFor.lookingFor,
+                    visitePurpose: detail.customerDetails.visitePurpose.visitePurpose,
+                    date: detail.customerDetails.date,
+                    time: detail.customerDetails.time
+                },
+                nextpurposeOfVisit: detail.nextpurposeOfVisit,
+                nextVisit: detail.nextVisit,
+                remark: detail.remark,
+                images: detail.images
+            };
+        });
+
+        res.status(200).json({
+            success: true,
+            data: sanitizedDetails
+        });
+    } catch (error) {
+        console.error("Error Fetching Details:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
+
+// Get a single detail by ID
+const getDetailsById = async (req, res) => {
+    try {
+        const detail = await DetailsModel.findById(req.params.id).populate({
             path: 'customerDetails',
             populate: [
                 {
@@ -92,40 +165,50 @@ const getDetails = async (req, res) => {
             ]
         });
 
-        if (!details) {
+        if (!detail) {
             return res.status(404).json({
                 success: false,
-                message: "Record Not Found"
-            })
+                message: "Detail not found"
+            });
         }
+
+        // Transforming detail to remove unwanted fields
+        const sanitizedDetail = {
+            ...detail._doc,
+            customerDetails: {
+                ...detail.customerDetails._doc,
+                customerName: {
+                    customerName: detail.customerDetails.customerName.customerName,
+                    customerId: detail.customerDetails.customerName.customerId,
+                    mobileNumber: detail.customerDetails.customerName.mobileNumber,
+                    state: detail.customerDetails.customerName.state
+                },
+                fieldExecutiveName: {
+                    name: detail.customerDetails.fieldExecutiveName.name,
+                    feuid: detail.customerDetails.fieldExecutiveName.feuid,
+                    phoneNumber: detail.customerDetails.fieldExecutiveName.phoneNumber
+                },
+                lookingFor: detail.customerDetails.lookingFor.lookingFor,
+                visitePurpose: detail.customerDetails.visitePurpose.visitePurpose,
+                date: detail.customerDetails.date,
+                time: detail.customerDetails.time
+            },
+            nextpurposeOfVisit: detail.nextpurposeOfVisit,
+            nextVisit: detail.nextVisit,
+            remark: detail.remark,
+            images: detail.images
+        };
 
         res.status(200).json({
             success: true,
-            data: details
-        });
-    } catch (error) {
-        console.error("Error Fetching Details:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-};
-
-
-// Get a single detail by ID
-const getDetailsById = async (req, res) => {
-    try {
-        const detail = await DetailsModel.findById(req.params.id).populate('customerDetails');
-        if (!detail) {
-            return res.status(404).json({ message: "Detail not found" });
-        }
-        res.status(200).json({
-            success: true,
-            data: detail
+            data: sanitizedDetail
         });
     } catch (error) {
         console.error("Error Fetching Detail:", error);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
 
 // Update details
 const updateDetails = async (req, res) => {
