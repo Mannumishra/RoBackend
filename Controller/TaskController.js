@@ -1,4 +1,5 @@
 const CustmorModel = require("../Model/CustmorModel");
+const DetailsModel = require("../Model/DetailsModel");
 const LookingModel = require("../Model/LookingForModel");
 const PurposeModel = require("../Model/PurposeOfVisitModel");
 const TaskModel = require("../Model/TaskModel");
@@ -163,7 +164,11 @@ const getTasksByCoustmorePhone = async (req, res) => {
         const { phoneNumber } = req.body;
 
         const coustmore = await CustmorModel.findOne({ mobileNumber: phoneNumber });
+        // Find the details associated with the customer
+        const details = await DetailsModel.findOne({ customerDetails: coustmore._id })
+            .populate({ path: 'customerDetails', select: 'customerName mobileNumber state' });
 
+        console.log("My", details)
         if (!coustmore) {
             return res.status(404).json({ success: false, message: "Coustmore not found" });
         }
@@ -178,7 +183,17 @@ const getTasksByCoustmorePhone = async (req, res) => {
             return res.status(404).json({ success: false, message: "No tasks found for this field executive" });
         }
 
-        res.status(200).json({ success: true, data: tasks });
+        const responseData = {
+            success: true,
+            data: tasks,
+            details: details ? {
+                nextpurposeOfVisit: details.nextpurposeOfVisit,
+                nextVisit: details.nextVisit,
+                remark: details.remark,
+                images: details.images
+            } : null // If no details found, set to null
+        };
+        res.status(200).json(responseData)
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
