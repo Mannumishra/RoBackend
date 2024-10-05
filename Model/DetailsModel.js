@@ -2,32 +2,26 @@
 const mongoose = require('mongoose');
 
 const detailsSchema = new mongoose.Schema({
-  customerName: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-  time: {
-    type: String,
-    required: true,
-  },
-  purposeOfVisit: {
-    type: String,
-    required: true,
-  },
-  nextVisit: {
-    type: Date,
-  },
-  remark: {
-    type: String,
-  },
+    customerDetails: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Task",
+        required: true,
+    },
+    nextpurposeOfVisit: {
+        type: String,
+        required: true,
+    },
+    nextVisit: {
+        type: Date,
+        required: true
+    },
+    remark: {
+        type: String,
+    },
+    images: {
+        type: [String],
+        required: true
+    }
 });
 
 const DetailsModel = mongoose.model('Detail', detailsSchema);

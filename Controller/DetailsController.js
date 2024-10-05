@@ -1,21 +1,23 @@
+// server/Controller/DetailsController.js
 const fs = require('fs');
 const DetailsModel = require('../Model/DetailsModel');
 const { uploadImage, deleteImage } = require('../utils/Cloudnary');
+const CustmorModel = require("../Model/CustmorModel");
+const LookingModel = require("../Model/LookingForModel");
+const PurposeModel = require("../Model/PurposeOfVisitModel");
+const TaskModel = require("../Model/TaskModel");
+const VenderModel = require("../Model/VenderModel");
 
 // Create a new record with images
 const createDetails = async (req, res) => {
     try {
-        const { customerName, address, date, time, purposeOfVisit, nextVisit, remark } = req.body;
+        const { customerDetails, nextpurposeOfVisit, nextVisit, remark } = req.body;
         const errorMessage = [];
 
         // Validate required fields
-        if (!customerName) errorMessage.push("Customer name is required.");
-        if (!address) errorMessage.push("Address is required.");
-        if (!date) errorMessage.push("Date is required.");
-        if (!time) errorMessage.push("Time is required.");
-        if (!purposeOfVisit) errorMessage.push("Purpose of visit is required.");
+        if (!customerDetails) errorMessage.push("Customer details (Task ID) are required.");
+        if (!nextpurposeOfVisit) errorMessage.push("Purpose of visit is required.");
         if (!nextVisit) errorMessage.push("Next visit date is required.");
-        if (!remark) errorMessage.push("Remark is required.");
 
         // If there are validation errors, respond with an error message
         if (errorMessage.length > 0) {
@@ -25,9 +27,10 @@ const createDetails = async (req, res) => {
         if (!req.files) {
             return res.status(400).json({
                 success: false,
-                message: "Image is must required"
-            })
+                message: "Image is required."
+            });
         }
+
         // Handle image uploads
         const images = [];
         if (req.files && req.files.length > 0) {
@@ -44,14 +47,11 @@ const createDetails = async (req, res) => {
         }
 
         const details = new DetailsModel({
-            customerName,
-            address,
-            date,
-            time,
-            purposeOfVisit,
+            customerDetails,
+            nextpurposeOfVisit,
             nextVisit,
-            remark,
-            images
+            remark, // Optional field
+            images // Added the uploaded images array
         });
 
         // Save the details in MongoDB
@@ -70,10 +70,38 @@ const createDetails = async (req, res) => {
 // Get all details
 const getDetails = async (req, res) => {
     try {
-        const details = await DetailsModel.find();
+        const details = await DetailsModel.find().populate({
+            path: 'customerDetails',
+            populate: [
+                {
+                    path: 'customerName',
+                    model: 'Custmor',  // Correct model name for Customer 
+                },
+                {
+                    path: 'fieldExecutiveName',
+                    model: 'Vender',  // Correct model name for Vendor 
+                },
+                {
+                    path: 'lookingFor',
+                    model: 'Looking',  // Correct model name for LookingFor 
+                },
+                {
+                    path: 'visitePurpose',
+                    model: 'Purpose'  // Correct model name for PurposeOfVisit 
+                }
+            ]
+        });
+
+        if (!details) {
+            return res.status(404).json({
+                success: false,
+                message: "Record Not Found"
+            })
+        }
+
         res.status(200).json({
-            success:true,
-            data:details
+            success: true,
+            data: details
         });
     } catch (error) {
         console.error("Error Fetching Details:", error);
@@ -81,16 +109,17 @@ const getDetails = async (req, res) => {
     }
 };
 
+
 // Get a single detail by ID
 const getDetailsById = async (req, res) => {
     try {
-        const detail = await DetailsModel.findById(req.params.id);
+        const detail = await DetailsModel.findById(req.params.id).populate('customerDetails');
         if (!detail) {
             return res.status(404).json({ message: "Detail not found" });
         }
         res.status(200).json({
-            success:true,
-            data:detail
+            success: true,
+            data: detail
         });
     } catch (error) {
         console.error("Error Fetching Detail:", error);
@@ -128,8 +157,8 @@ const updateDetails = async (req, res) => {
         Object.assign(detail, req.body);
         const updatedDetail = await detail.save();
         res.status(200).json({
-            success:true,
-            data:updatedDetail
+            success: true,
+            data: updatedDetail
         });
 
     } catch (error) {
