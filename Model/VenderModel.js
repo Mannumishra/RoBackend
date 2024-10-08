@@ -28,6 +28,10 @@ const venderSchema = new mongoose.Schema({
         type: String,
         required: [true, "Password is required"],
     },
+    role:{
+        type:String,
+        default:"Field Excutive"
+    }
 }, {
     timestamps: true
 });

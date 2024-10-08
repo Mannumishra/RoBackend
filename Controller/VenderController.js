@@ -1,6 +1,7 @@
 const VenderModel = require("../Model/VenderModel")
 const bcrypt = require("bcrypt")
 const saltRound = 12
+const jwt = require("jsonwebtoken")
 
 const createVender = async (req, res) => {
     try {
@@ -41,7 +42,7 @@ const createVender = async (req, res) => {
 
         // Count total existing vendors to generate a new ID
         const totalVendors = await VenderModel.countDocuments();
-        const feuid = `DRPP001${totalVendors + 1}`;  
+        const feuid = `DRPP001${totalVendors + 1}`;
 
         const hashPassword = await bcrypt.hash(password, saltRound)
 
@@ -49,7 +50,8 @@ const createVender = async (req, res) => {
         await data.save()
         res.status(200).json({
             success: true,
-            message: "New Vender Created Successfully"
+            message: "New Vender Created Successfully",
+            data:data
         })
     } catch (error) {
         console.log(error)
@@ -168,6 +170,57 @@ const deleteVender = async (req, res) => {
     }
 };
 
+
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is must required"
+            })
+        }
+        if (!password) {
+            return res.status(400).json({
+                success: false,
+                message: "Invaild Password"
+            })
+        }
+        const fieldExcutiveKey = "qwertyuiopoiuytrewqwertyuiopiuytrasdlkjhgfdsasdfghj"
+        const exitdata = await VenderModel.findOne({ email: email })
+        if (!exitdata) {
+            return res.status(404).json({
+                success: false,
+                message: "Invaild Email Address"
+            })
+        }
+        const checkpassword = await bcrypt.compare(password, exitdata.password)
+        const token = jwt.sign(
+            { id: exitdata._id, email: exitdata.email },
+            fieldExcutiveKey,
+            { expiresIn: '1d' } // Token expires in 1 day
+        );
+        if (!checkpassword) {
+            return res.status(400).json({
+                success: false,
+                message: "Invaild Password"
+            })
+        }
+        res.status(200).json({
+            success: true,
+            message: "Login Successfully",
+            data: exitdata,
+            token: token
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+}
+
 module.exports = {
-    createVender, getAllVenders, getVenderById, updateVender, deleteVender
+    createVender, getAllVenders, getVenderById, updateVender, deleteVender,login
 }
