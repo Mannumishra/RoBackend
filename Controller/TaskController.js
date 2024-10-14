@@ -166,7 +166,7 @@ const getTasksByCoustmorePhone = async (req, res) => {
         const coustmore = await CustmorModel.findOne({ mobileNumber: phoneNumber });
         // Find the details associated with the customer
         // Find the details associated with the customer
-        const details = await DetailsModel.findOne({ onlyCustomerId: coustmore._id })
+        const details = await DetailsModel.find({ onlyCustomerId: coustmore._id })
             .populate({ path: 'onlyCustomerId', select: 'customerName mobileNumber whatsappNumber email address state modelName brandName' });
 
         console.log("My", details)
@@ -187,12 +187,12 @@ const getTasksByCoustmorePhone = async (req, res) => {
         const responseData = {
             success: true,
             data: tasks,
-            details: details ? {
-                nextpurposeOfVisit: details.nextpurposeOfVisit,
-                nextVisit: details.nextVisit,
-                remark: details.remark,
-                images: details.images
-            } : null
+            details: details.length > 0 ? details.map(detail => ({
+                nextpurposeOfVisit: detail.nextpurposeOfVisit,
+                nextVisit: detail.nextVisit,
+                remark: detail.remark,
+                images: detail.images
+            })) : null // If no details found, set to null
         };
         res.status(200).json(responseData)
     } catch (error) {

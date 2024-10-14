@@ -2,13 +2,13 @@
 const mongoose = require('mongoose');
 
 const detailsSchema = new mongoose.Schema({
-    customerDetails: {
+    customerDetails: {    // task id 
         type: mongoose.Schema.ObjectId,
         ref: "Task",
         required: true,
     },
     onlyCustomerId:{
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.ObjectId, // customer id
         ref: "Custmor",
         required: true,
     },
