@@ -12,7 +12,7 @@ const detailsSchema = new mongoose.Schema({
         required: true,
     },
     nextVisit: {
-        type: Date,
+        type: String,
         required: true
     },
     remark: {
