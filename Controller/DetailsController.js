@@ -11,7 +11,7 @@ const VenderModel = require("../Model/VenderModel");
 // Create a new record with images
 const createDetails = async (req, res) => {
     try {
-        const { customerDetails, nextpurposeOfVisit, nextVisit, remark ,onlyCustomerId } = req.body;
+        const { customerDetails, nextpurposeOfVisit, nextVisit, remark, onlyCustomerId } = req.body;
         const errorMessage = [];
 
         // Validate required fields
@@ -57,6 +57,15 @@ const createDetails = async (req, res) => {
 
         // Save the details in MongoDB
         const savedDetails = await details.save();
+        // Find the associated task by its ID (customerDetails is the task id)
+        const task = await TaskModel.findById(customerDetails);
+
+        if (!task) {
+            return res.status(404).json({ success: false, message: "Task not found" });
+        }
+        // Update the task's status to "Completed" or another status
+        task.status = "Completed"
+        await task.save();
         res.status(200).json({
             success: true,
             data: savedDetails
