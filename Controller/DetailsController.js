@@ -11,7 +11,7 @@ const VenderModel = require("../Model/VenderModel");
 // Create a new record with images
 const createDetails = async (req, res) => {
     try {
-        const { customerDetails, nextpurposeOfVisit, nextVisit, remark } = req.body;
+        const { customerDetails, nextpurposeOfVisit, nextVisit, remark ,onlyCustomerId } = req.body;
         const errorMessage = [];
 
         // Validate required fields
@@ -49,6 +49,7 @@ const createDetails = async (req, res) => {
         const details = new DetailsModel({
             customerDetails,
             nextpurposeOfVisit,
+            onlyCustomerId,
             nextVisit,
             remark, // Optional field
             images // Added the uploaded images array
@@ -90,6 +91,9 @@ const getDetails = async (req, res) => {
                     model: 'Purpose'  // Correct model name for PurposeOfVisit 
                 }
             ]
+        }).populate({
+            path: 'onlyCustomerId',
+            model: 'Custmor', // Populating onlyCustomerId field
         });
 
         if (!details) {

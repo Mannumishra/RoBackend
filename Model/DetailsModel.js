@@ -7,6 +7,11 @@ const detailsSchema = new mongoose.Schema({
         ref: "Task",
         required: true,
     },
+    onlyCustomerId:{
+        type: mongoose.Schema.ObjectId,
+        ref: "Custmor",
+        required: true,
+    },
     nextpurposeOfVisit: {
         type: String,
         required: true,
