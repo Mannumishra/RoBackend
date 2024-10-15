@@ -1,7 +1,7 @@
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 const saleModel = require("../Model/SaleModel");
-// const { generatePDF } = require("../utils/generatePDF");
+const { generatePDF } = require("../utils/generatePDF");
 const fs = require('fs');
 const VenderModel = require("../Model/VenderModel");
 
@@ -27,20 +27,20 @@ exports.createSale = async (req, res) => {
 
         const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount });
         const savedSale = await newSale.save();
-        res.status(200).json({
-            success: true,
-            message: "Success Fully",
-            data: savedSale
-        })
-        // const pdfBuffer = await generatePDF(savedSale);
-        // fs.writeFileSync(`./${savedSale._id}.pdf`, pdfBuffer);
+        // res.status(200).json({
+        //     success: true,
+        //     message: "Success Fully",
+        //     data: savedSale
+        // })
+        const pdfBuffer = await generatePDF(savedSale);
+        fs.writeFileSync(`./${savedSale._id}.pdf`, pdfBuffer);
 
-        // res.set({
-        //     'Content-Type': 'application/pdf',
-        //     'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
-        //     'Content-Length': pdfBuffer.length
-        // });
-        // res.send(pdfBuffer);
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
+            'Content-Length': pdfBuffer.length
+        });
+        res.send(pdfBuffer);
     } catch (error) {
         console.log("Error:", error);
         res.status(500).json({ message: "Server Error", error });
