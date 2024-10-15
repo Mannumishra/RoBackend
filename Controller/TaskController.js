@@ -279,8 +279,7 @@ const getPendingData = async (req, res) => {
 
 const updateFieldExecutiveInTask = async (req, res) => {
     try {
-        const { id } = req.params; 
-        const { fieldExecutiveName } = req.body; 
+        const { fieldExecutiveName ,taskId } = req.body; 
 
         // Check if the new field executive exists
 
@@ -291,7 +290,7 @@ const updateFieldExecutiveInTask = async (req, res) => {
 
         // Update the task by changing only the field executive name
         const updatedTask = await TaskModel.findByIdAndUpdate(
-            id,
+            taskId,
             { fieldExecutiveName },
             { new: true }
         )

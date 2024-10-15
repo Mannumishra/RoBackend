@@ -17,6 +17,6 @@ TaskRouter.post('/tasks/date', getTasksByDate);
 
 TaskRouter.post('/pending-task', getPendingData);
 
-TaskRouter.put('/tasks-update/field-executive/:id', updateFieldExecutiveInTask);
+TaskRouter.put('/tasks-update/field-executive', updateFieldExecutiveInTask);
 
 module.exports = TaskRouter;
