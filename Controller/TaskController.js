@@ -194,6 +194,7 @@ const getTasksByCoustmorePhone = async (req, res) => {
                     customerName: coustmore.customerName,
                     mobileNumber: coustmore.mobileNumber,
                     whatsappNumber: coustmore.whatsappNumber,
+                    customerId:coustmore.customerId,
                     email: coustmore.email,
                     address: coustmore.address,
                     state: coustmore.state,
@@ -282,7 +283,7 @@ const updateFieldExecutiveInTask = async (req, res) => {
         const { fieldExecutiveName } = req.body; 
 
         // Check if the new field executive exists
-        
+
         const fieldExecutive = await VenderModel.findById(fieldExecutiveName);
         if (!fieldExecutive) {
             return res.status(404).json({ message: 'Field executive not found' });
