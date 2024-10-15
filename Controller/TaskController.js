@@ -154,6 +154,7 @@ const getTasksByFieldExecutivePhone = async (req, res) => {
 
         res.status(200).json({ success: true, data: tasks });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ success: false, message: error.message });
     }
 };
@@ -163,17 +164,18 @@ const getTasksByCoustmorePhone = async (req, res) => {
     try {
         const { phoneNumber } = req.body;
 
+        // Find the customer by their phone number
         const coustmore = await CustmorModel.findOne({ mobileNumber: phoneNumber });
-        // Find the details associated with the customer
-        // Find the details associated with the customer
+
+        if (!coustmore) {
+            return res.status(404).json({ success: false, message: "Customer not found" });
+        }
+
+        // Find details associated with the customer
         const details = await DetailsModel.find({ onlyCustomerId: coustmore._id })
             .populate({ path: 'onlyCustomerId', select: 'customerName mobileNumber whatsappNumber email address state modelName brandName' });
 
-        console.log("My", details)
-        if (!coustmore) {
-            return res.status(404).json({ success: false, message: "Coustmore not found" });
-        }
-
+        // Find tasks associated with the customer
         const tasks = await TaskModel.find({ customerName: coustmore._id })
             .populate({ path: 'customerName', select: '-__v -email -_id' })
             .populate({ path: 'fieldExecutiveName', select: '-__v -password -createdAt -updatedAt -email -_id' })
@@ -181,20 +183,41 @@ const getTasksByCoustmorePhone = async (req, res) => {
             .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
 
         if (tasks.length === 0) {
-            return res.status(404).json({ success: false, message: "No tasks found for this field executive" });
+            return res.status(404).json({ success: false, message: "No tasks found for this customer" });
         }
 
+        // Combine both tasks and details into one response
         const responseData = {
             success: true,
-            data: tasks,
-            details: details.length > 0 ? details.map(detail => ({
-                nextpurposeOfVisit: detail.nextpurposeOfVisit,
-                nextVisit: detail.nextVisit,
-                remark: detail.remark,
-                images: detail.images
-            })) : null // If no details found, set to null
+            data: {
+                customer: {
+                    customerName: coustmore.customerName,
+                    mobileNumber: coustmore.mobileNumber,
+                    whatsappNumber: coustmore.whatsappNumber,
+                    email: coustmore.email,
+                    address: coustmore.address,
+                    state: coustmore.state,
+                    modelName: coustmore.modelName,
+                    brandName: coustmore.brandName
+                },
+                tasks: tasks.map(task => ({
+                    taskId: task._id,
+                    fieldExecutiveName: task.fieldExecutiveName,
+                    lookingFor: task.lookingFor,
+                    visitePurpose: task.visitePurpose,
+                    taskDetails: task.taskDetails, // Add any additional task-related fields you want to return
+                })),
+                details: details.length > 0 ? details.map(detail => ({
+                    nextpurposeOfVisit: detail.nextpurposeOfVisit,
+                    nextVisit: detail.nextVisit,
+                    remark: detail.remark,
+                    images: detail.images
+                })) : [] // If no details found, return an empty array
+            }
         };
-        res.status(200).json(responseData)
+
+        // Send the combined response
+        res.status(200).json(responseData);
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
