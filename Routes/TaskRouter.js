@@ -1,5 +1,5 @@
 const express = require('express');
-const { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone, getTasksByDate, getTasksByCoustmorePhone, getPendingData } = require('../Controller/TaskController');
+const { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone, getTasksByDate, getTasksByCoustmorePhone, getPendingData, updateFieldExecutiveInTask } = require('../Controller/TaskController');
 
 const TaskRouter = express.Router();
 
@@ -17,5 +17,6 @@ TaskRouter.post('/tasks/date', getTasksByDate);
 
 TaskRouter.post('/pending-task', getPendingData);
 
+TaskRouter.put('/tasks-update/field-executive/:id', updateFieldExecutiveInTask);
 
 module.exports = TaskRouter;

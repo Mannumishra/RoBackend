@@ -276,5 +276,41 @@ const getPendingData = async (req, res) => {
 };
 
 
+const updateFieldExecutiveInTask = async (req, res) => {
+    try {
+        const { id } = req.params; 
+        const { fieldExecutiveName } = req.body; 
 
-module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone, getTasksByDate, getTasksByCoustmorePhone, getPendingData };
+        // Check if the new field executive exists
+        
+        const fieldExecutive = await VenderModel.findById(fieldExecutiveName);
+        if (!fieldExecutive) {
+            return res.status(404).json({ message: 'Field executive not found' });
+        }
+
+        // Update the task by changing only the field executive name
+        const updatedTask = await TaskModel.findByIdAndUpdate(
+            id,
+            { fieldExecutiveName },
+            { new: true }
+        )
+            .populate({ path: 'customerName', select: "-__v -email" })
+            .populate({ path: "fieldExecutiveName", select: '-__v -password -createdAt -updatedAt -email' })
+            .populate({ path: 'lookingFor', select: '-__v' })
+            .populate({ path: 'visitePurpose', select: '-lookingFor -__v' });
+
+        // Check if the task was found and updated
+        if (!updatedTask) {
+            return res.status(404).json({ success: false, message: "Task not found" });
+        }
+
+        // Return success response with the updated task
+        res.status(200).json({ success: true, message: "Field executive updated successfully", task: updatedTask });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+
+module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone, getTasksByDate, getTasksByCoustmorePhone, getPendingData, updateFieldExecutiveInTask };
