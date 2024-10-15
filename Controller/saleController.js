@@ -27,11 +27,17 @@ exports.createSale = async (req, res) => {
 
         const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount });
         const savedSale = await newSale.save();
+
+        const populatedSale = await saleModel
+            .findById(savedSale._id)
+            .populate('customer')          // Populate customer details
+            .populate('fieldExcutive')     // Populate field executive details
+            .populate('services');
         res.status(200).json({
             success: true,
-            message: "Success Fully",
-            data: savedSale
-        })
+            message: "Successfully created sale",
+            data: populatedSale
+        });
         // const pdfBuffer = await generatePDF(savedSale);
         // fs.writeFileSync(`./${savedSale._id}.pdf`, pdfBuffer);
 
