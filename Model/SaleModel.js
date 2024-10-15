@@ -6,6 +6,11 @@ const saleSchema = new mongoose.Schema({
         ref: "Custmor",
         required: true
     },
+    fieldExcutive: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Vender",
+        required: true
+    },
     mobileNumber: {
         type: String,
         required: true

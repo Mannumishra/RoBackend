@@ -3,14 +3,21 @@ const MyServiceModel = require("../Model/ServiceModel");
 const saleModel = require("../Model/SaleModel");
 // const { generatePDF } = require("../utils/generatePDF");
 const fs = require('fs');
+const VenderModel = require("../Model/VenderModel");
 
 exports.createSale = async (req, res) => {
     try {
-        const { customer, mobileNumber, services, totalAmount, reciveAmount } = req.body;
+        const { customer, mobileNumber, fieldExcutive, services, totalAmount, reciveAmount } = req.body;
 
         const existingCustomer = await CustmorModel.findById(customer);
         if (!existingCustomer) {
             return res.status(400).json({ message: "Customer not found" });
+        }
+
+        // Check if the field executive exists
+        const existingFieldExecutive = await VenderModel.findById(fieldExcutive);
+        if (!existingFieldExecutive) {
+            return res.status(400).json({ message: "Field Executive not found" });
         }
 
         const serviceObjects = await MyServiceModel.find({ _id: { $in: services } }).populate('serviceName');
@@ -18,7 +25,7 @@ exports.createSale = async (req, res) => {
             return res.status(400).json({ message: "One or more services not found" });
         }
 
-        const newSale = new saleModel({ customer, mobileNumber, services, totalAmount, reciveAmount });
+        const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount });
         const savedSale = await newSale.save();
         res.status(200).json({
             success: true,
@@ -52,7 +59,7 @@ exports.getSales = async (req, res) => {
                 path: "serviceName",
                 model: "ItemService" // Make sure this matches your ItemService model name
             }
-        });;
+        }).populate("fieldExcutive", "name email phoneNumber feuid");
         res.status(200).json({
             success: true,
             message: "Sales Found Successfully",
@@ -134,3 +141,71 @@ exports.deleteSale = async (req, res) => {
         res.status(500).json({ message: "Server Error", error });
     }
 };
+
+exports.filterSales = async (req, res) => {
+    try {
+        const { customer, fieldExcutive, fromDate, toDate } = req.body;
+
+        // Function to convert 'DD-MM-YYYY' to a JavaScript Date object
+        const convertToDate = (dateStr) => {
+            const [day, month, year] = dateStr.split('-');
+            return new Date(`${year}-${month}-${day}`);
+        };
+
+        const from = convertToDate(fromDate);
+        const to = convertToDate(toDate);
+
+        // Check if the conversion resulted in valid dates
+        if (isNaN(from.getTime()) || isNaN(to.getTime())) {
+            return res.status(400).json({ message: "Invalid date format. Please use DD-MM-YYYY." });
+        }
+
+        // Correctly set 'to' to the end of the last day
+        to.setHours(23, 59, 59, 999);
+
+        console.log('From date:', from);
+        console.log('To date:', to);
+
+        const filterQuery = {
+            customer: customer,
+            fieldExcutive: fieldExcutive,
+            createdAt: {
+                $gte: from,
+                $lte: to
+            }
+        };
+
+        console.log('Filter Query:', filterQuery);
+
+        const sales = await saleModel.find(filterQuery)
+            .populate("customer", "customerName customerId mobileNumber whatsappNumber email address state modelName brandName")
+            .populate("fieldExcutive", "name feuid email phoneNumber")
+            .populate({
+                path: "services",
+                populate: {
+                    path: "serviceName",
+                    model: "ItemService"
+                }
+            });
+
+        if (sales.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No sales found for the given filters."
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: "Sales filtered successfully",
+            data: sales
+        });
+
+    } catch (error) {
+        console.error("Error filtering sales:", error);
+        res.status(500).json({ message: "Server Error", error });
+    }
+};
+
+
+
