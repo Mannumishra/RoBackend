@@ -33,6 +33,10 @@ exports.createSale = async (req, res) => {
             .populate('customer')          // Populate customer details
             .populate('fieldExcutive')     // Populate field executive details
             .populate('services');
+
+        // Delete the services that were part of the sale
+        await MyServiceModel.deleteMany({ _id: { $in: services } });
+
         res.status(200).json({
             success: true,
             message: "Successfully created sale",
