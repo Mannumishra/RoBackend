@@ -1,4 +1,5 @@
 const CustmorModel = require("../Model/CustmorModel");
+const DetailsModel = require("../Model/DetailsModel");
 
 const createCustomer = async (req, res) => {
     try {
@@ -53,13 +54,32 @@ const createCustomer = async (req, res) => {
 };
 
 
-// Get all customers
 const getCustomers = async (req, res) => {
     try {
+        // Fetch all customers
         const customers = await CustmorModel.find();
+
+        // Fetch corresponding details for each customer to get all 'nextVisit' dates
+        const customersWithNextVisits = await Promise.all(
+            customers.map(async (customer) => {
+                // Find all the corresponding details records for this customer
+                const details = await DetailsModel.find({ onlyCustomerId: customer._id });
+
+                // Extract all the 'nextVisit' dates from the details records
+                const nextVisitDates = details.map(detail => detail.nextVisit);
+
+                // Add the 'nextVisit' dates array to the customer data
+                return {
+                    ...customer.toObject(),  // Convert Mongoose document to plain JS object
+                    nextVisit: nextVisitDates.length > 0 ? nextVisitDates : null  // Add array of 'nextVisit' dates
+                };
+            })
+        );
+
+        // Return the modified customer data with 'nextVisit' dates
         res.status(200).json({
             success: true,
-            data: customers
+            data: customersWithNextVisits
         });
     } catch (error) {
         console.log(error);
@@ -69,6 +89,7 @@ const getCustomers = async (req, res) => {
         });
     }
 };
+
 
 // Get a single customer by ID
 const getCustomerById = async (req, res) => {
