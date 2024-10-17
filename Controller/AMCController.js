@@ -5,9 +5,9 @@ const moment = require('moment');
 
 const createAMC = async (req, res) => {
     try {
-        const { clientName, userID, service, fromDate, toDate } = req.body;
+        const { clientName, userID, services, fromDate, toDate } = req.body;
 
-        if (!clientName || !service || !fromDate || !toDate) {
+        if (!clientName || !services || !fromDate || !toDate) {
             return res.status(400).json({
                 success: false,
                 message: "clientName, userID, service, fromDate, and toDate are required"
@@ -26,17 +26,27 @@ const createAMC = async (req, res) => {
 
         const newAmc = new amcModel({
             clientName,
-            service,
+            services,
             userID,
             fromDate: formattedFromDate,
             toDate: formattedToDate,
         });
 
-        await newAmc.save();
+        const savedAmc = await newAmc.save();
+        const populatedAmc = await amcModel.findById(savedAmc._id)
+            .populate('clientName')
+            .populate('userID')
+            .populate({
+                path: 'services',
+                populate: {
+                    path: 'serviceName',
+                    model: 'ItemService'
+                }
+            });
         res.status(200).json({
             success: true,
             message: "AMC record created successfully",
-            data: newAmc
+            data: populatedAmc
         });
     } catch (error) {
         console.log(error);
@@ -50,7 +60,19 @@ const createAMC = async (req, res) => {
 // Get All AMC Records
 const getAllAMC = async (req, res) => {
     try {
-        const amcRecords = await amcModel.find().populate('clientName').populate('userID');
+        const amcRecords = await amcModel.find().populate('clientName').populate('userID').populate({
+            path: 'services',
+            populate: {
+                path: 'serviceName',  // Populating serviceName from ItemService
+                model: 'ItemService'
+            }
+        });
+        if (!amcRecords) {
+            return res.status(404).json({
+                success: false,
+                message: "AMC record not found"
+            });
+        }
         res.status(200).json({
             success: true,
             data: amcRecords
@@ -66,7 +88,13 @@ const getAllAMC = async (req, res) => {
 // Get Single AMC by ID
 const getAMCById = async (req, res) => {
     try {
-        const amcRecord = await amcModel.findById(req.params.id).populate('clientName').populate('userID');
+        const amcRecord = await amcModel.findById(req.params.id).populate('clientName').populate('userID').populate({
+            path: 'services',
+            populate: {
+                path: 'serviceName',  // Populating serviceName from ItemService
+                model: 'ItemService'
+            }
+        });
         if (!amcRecord) {
             return res.status(404).json({
                 success: false,
@@ -88,7 +116,7 @@ const getAMCById = async (req, res) => {
 // Update AMC
 const updateAMC = async (req, res) => {
     try {
-        const { clientName, userID, service, fromDate, toDate } = req.body;
+        const { clientName, userID, services, fromDate, toDate } = req.body;
         const amcRecord = await amcModel.findById(req.params.id);
 
         if (!amcRecord) {
@@ -99,7 +127,7 @@ const updateAMC = async (req, res) => {
         }
 
         amcRecord.clientName = clientName || amcRecord.clientName;
-        amcRecord.service = service || amcRecord.service;
+        amcRecord.services = services || amcRecord.services; // Update services array
         amcRecord.userID = userID || amcRecord.userID; // Updating userID
         amcRecord.fromDate = fromDate || amcRecord.fromDate;
         amcRecord.toDate = toDate || amcRecord.toDate;

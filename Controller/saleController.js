@@ -25,14 +25,24 @@ exports.createSale = async (req, res) => {
             return res.status(400).json({ message: "One or more services not found" });
         }
 
-        const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount });
+        // Generate bill number using countDocuments()
+        const saleCount = await saleModel.countDocuments();  // Get the count of sales
+        const billNo = 1000 + saleCount;  // Start bill number from 1000 and increment by the number of sales
+
+        const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount, billNo: billNo.toString() });
         const savedSale = await newSale.save();
 
         const populatedSale = await saleModel
             .findById(savedSale._id)
             .populate('customer')          // Populate customer details
             .populate('fieldExcutive')     // Populate field executive details
-            .populate('services');
+            .populate({
+                path: 'services',
+                populate: {
+                    path: 'serviceName',
+                    model: 'ItemService'
+                }
+            });
 
         // Delete the services that were part of the sale
         await MyServiceModel.deleteMany({ _id: { $in: services } });

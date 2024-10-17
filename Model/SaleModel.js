@@ -27,6 +27,9 @@ const saleSchema = new mongoose.Schema({
     reciveAmount: {
         type: String,
         required: true
+    },
+    billNo:{
+        type:String
     }
 }, { timestamps: true })
 

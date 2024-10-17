@@ -11,8 +11,9 @@ const amcSchema = new mongoose.Schema({
         ref: "Vender",
         required: true
     },
-    service: {
-        type: String,
+    services: {
+        type: [mongoose.Schema.ObjectId],
+        ref: "Service",
         required: true
     },
     fromDate: {
