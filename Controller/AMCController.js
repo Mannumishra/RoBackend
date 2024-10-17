@@ -174,7 +174,13 @@ const deleteAMC = async (req, res) => {
 const getAllBYDateAMC = async (req, res) => {
     try {
         const { month, year } = req.body;
-        let amcRecords = await amcModel.find().populate('clientName').populate('userID');
+        let amcRecords = await amcModel.find().populate('clientName').populate('userID').populate({
+            path: 'services',
+            populate: {
+                path: 'serviceName',  // Populating serviceName from ItemService
+                model: 'ItemService'
+            }
+        });
 
         if (month && year) {
             const monthInt = parseInt(month, 10);
