@@ -12,7 +12,7 @@ const amcSchema = new mongoose.Schema({
         required: true
     },
     services: {
-        type: [mongoose.Schema.ObjectId],
+        type: mongoose.Schema.ObjectId,
         ref: "Service",
         required: true
     },
