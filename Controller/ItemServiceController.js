@@ -3,10 +3,10 @@ const ItemServiceModel = require("../Model/ItemServiceModel")
 
 const createService = async (req, res) => {
     try {
-        const { serviceName, itemCode, boxNumber, hsnCode, purchaseAmount, discountPercentage, salePrice } = req.body;
+        const { serviceNames, itemCode, boxNumber, hsnCode, purchaseAmount, discountPercentage, salePrice } = req.body;
         const errorMessage = [];
 
-        if (!serviceName) errorMessage.push("Service Name is required");
+        if (!serviceNames) errorMessage.push("Service Name is required");
         if (!itemCode) errorMessage.push("Item Code is required");
         if (!boxNumber) errorMessage.push("Box Number is required");
         if (!hsnCode) errorMessage.push("HSN Code is required");
@@ -22,7 +22,7 @@ const createService = async (req, res) => {
         }
 
         const newServiceItem = new ItemServiceModel({
-            serviceName,
+            serviceNames,
             itemCode,
             boxNumber,
             hsnCode,
