@@ -1,3 +1,4 @@
+const saleModel = require("../Model/SaleModel");
 const MyServiceModel = require("../Model/ServiceModel");
 
 
@@ -34,7 +35,7 @@ const createService = async (req, res) => {
         return res.status(200).json(
             {
                 success: true,
-                message:"Bill Genrate Successfully",
+                message: "Bill Genrate Successfully",
                 data: savedService
             }
         );
@@ -47,10 +48,18 @@ const createService = async (req, res) => {
 // Read all services
 const getAllServices = async (req, res) => {
     try {
-        const services = await MyServiceModel.find().populate({path :"serviceName" ,select:"-__v "});
+        // Get all sold services from sales
+        const sales = await saleModel.find().select('services'); // Get only the 'services' field from sales
+        const soldServiceIds = sales.flatMap(sale => sale.services.map(service => service.toString())); // Get all sold service IDs as strings
+
+        // Fetch all services that are not part of a sale
+        const services = await MyServiceModel.find({
+            _id: { $nin: soldServiceIds }  // Exclude services that are sold
+        }).populate({ path: "serviceName", select: "-__v" });
+
         return res.status(200).json({
-            success:true,
-            data:services
+            success: true,
+            data: services
         });
     } catch (error) {
         console.error(error);
@@ -58,10 +67,11 @@ const getAllServices = async (req, res) => {
     }
 };
 
+
 // Read a single service by ID
 const getServiceById = async (req, res) => {
     try {
-        const service = await MyServiceModel.findById(req.params.id).populate({path :"serviceName" ,select:"-__v "});
+        const service = await MyServiceModel.findById(req.params.id).populate({ path: "serviceName", select: "-__v " });
         if (!service) {
             return res.status(404).json({ message: "Service not found." });
         }
@@ -92,7 +102,7 @@ const updateService = async (req, res) => {
                 totalAmount,
             },
             { new: true }
-        ).populate({path :"serviceName" ,select:"-__v "});
+        ).populate({ path: "serviceName", select: "-__v " });
 
         if (!updatedService) {
             return res.status(404).json({ message: "Service not found." });

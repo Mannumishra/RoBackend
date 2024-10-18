@@ -45,7 +45,7 @@ exports.createSale = async (req, res) => {
             });
 
         // Delete the services that were part of the sale
-        await MyServiceModel.deleteMany({ _id: { $in: services } });
+        // await MyServiceModel.deleteMany({ _id: { $in: services } });
 
         res.status(200).json({
             success: true,
