@@ -67,6 +67,28 @@ const getAllServices = async (req, res) => {
     }
 };
 
+const getTotalServices = async(req,res)=>{
+    try {
+        const  data = await MyServiceModel.find().populate({ path: "serviceName", select: "-__v " })
+        if(!data){
+            return res.status(404).json({
+                success:false,
+                message:"Services Not Found"
+            })
+        }
+        res.status(200).json({
+            success:true,
+            message:"Record Found Successfully",
+            data:data
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            success:false,
+            message:"Internal Server Error"
+        })
+    }
+}
 
 // Read a single service by ID
 const getServiceById = async (req, res) => {
@@ -137,4 +159,5 @@ module.exports = {
     getServiceById,
     updateService,
     deleteService,
+    getTotalServices
 };
