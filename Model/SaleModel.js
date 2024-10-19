@@ -15,6 +15,10 @@ const saleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    refNumber:{
+        type: String,
+        required: true
+    },
     services: {
         type: [mongoose.Schema.ObjectId],
         ref: "Service",
