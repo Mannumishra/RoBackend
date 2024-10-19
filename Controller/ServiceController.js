@@ -6,7 +6,7 @@ const MyServiceModel = require("../Model/ServiceModel");
 // Create a new service
 const createService = async (req, res) => {
     try {
-        const { serviceName, quantity, rate, primaryUnits, subtotal, taxPrice, totalAmount } = req.body;
+        const { serviceName, quantity, rate, primaryUnits, subtotal, taxPrice, totalAmount, discount, afterDiscountAmount } = req.body;
         const errorMessage = [];
 
         if (!serviceName) errorMessage.push("Service name is required.");
@@ -16,6 +16,8 @@ const createService = async (req, res) => {
         if (subtotal === undefined || subtotal < 0) errorMessage.push("Subtotal must be a non-negative number.");
         if (taxPrice === undefined || taxPrice < 0) errorMessage.push("Tax price must be a non-negative number.");
         if (totalAmount === undefined || totalAmount < 0) errorMessage.push("Total amount must be a non-negative number.");
+        if (discount === undefined || discount < 0) errorMessage.push("discount must be a non-negative number.");
+        if (afterDiscountAmount === undefined || afterDiscountAmount < 0) errorMessage.push("afterDiscountAmount must be a non-negative number.");
 
         if (errorMessage.length > 0) {
             return res.status(400).json({ errors: errorMessage.join(",") });
@@ -29,6 +31,8 @@ const createService = async (req, res) => {
             subtotal,
             taxPrice,
             totalAmount,
+            discount,
+            afterDiscountAmount
         });
 
         const savedService = await newService.save();
@@ -67,25 +71,25 @@ const getAllServices = async (req, res) => {
     }
 };
 
-const getTotalServices = async(req,res)=>{
+const getTotalServices = async (req, res) => {
     try {
-        const  data = await MyServiceModel.find().populate({ path: "serviceName", select: "-__v " })
-        if(!data){
+        const data = await MyServiceModel.find().populate({ path: "serviceName", select: "-__v " })
+        if (!data) {
             return res.status(404).json({
-                success:false,
-                message:"Services Not Found"
+                success: false,
+                message: "Services Not Found"
             })
         }
         res.status(200).json({
-            success:true,
-            message:"Record Found Successfully",
-            data:data
+            success: true,
+            message: "Record Found Successfully",
+            data: data
         })
     } catch (error) {
         console.log(error)
         res.status(500).json({
-            success:false,
-            message:"Internal Server Error"
+            success: false,
+            message: "Internal Server Error"
         })
     }
 }
@@ -122,6 +126,8 @@ const updateService = async (req, res) => {
                 subtotal,
                 taxPrice,
                 totalAmount,
+                afterDiscountAmount,
+                discount
             },
             { new: true }
         ).populate({ path: "serviceName", select: "-__v " });

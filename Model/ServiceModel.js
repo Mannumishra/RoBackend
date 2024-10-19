@@ -30,6 +30,14 @@ const ServiceSchema = new mongoose.Schema({
     totalAmount: {
         type: String,
         required: true
+    },
+    discount:{
+        type:String,
+        required:true
+    },
+    afterDiscountAmount:{
+        type:String,
+        required:true
     }
 });
 
