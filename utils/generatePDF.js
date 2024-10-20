@@ -1,44 +1,8 @@
-const puppeteer = require('puppeteer-core');
+const puppeteer = require('puppeteer');
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
-const path = require('path');
 
-// Convert number to words function
-const convertNumberToWords = (num) => {
-    if (num === 0) return "Zero";
-    
-    const belowTwenty = [
-        "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
-        "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", 
-        "Seventeen", "Eighteen", "Nineteen"
-    ];
-    
-    const tens = [
-        "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
-    ];
-    
-    const aboveThousand = [
-        "", "Thousand", "Million", "Billion"
-    ];
-
-    const words = (n) => {
-        if (n < 20) return belowTwenty[n];
-        if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 > 0 ? " " + belowTwenty[n % 10] : "");
-        if (n < 1000) return belowTwenty[Math.floor(n / 100)] + " Hundred" + (n % 100 > 0 ? " " + words(n % 100) : "");
-        
-        for (let i = 0; i < aboveThousand.length; i++) {
-            const divisor = Math.pow(1000, i);
-            if (n < divisor * 1000) {
-                return words(Math.floor(n / divisor)) + " " + aboveThousand[i] + (n % divisor > 0 ? " " + words(n % divisor) : "");
-            }
-        }
-    };
-
-    return words(num).trim();
-};
-
-const chromiumPath = '/usr/bin/chromium-browser'; // Path to Chromium
-
+// Function to generate PDF invoice using Puppeteer
 const generatePDF = async (saleData) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -47,7 +11,8 @@ const generatePDF = async (saleData) => {
             // Fetch services details
             const services = await MyServiceModel.find({ _id: { $in: saleData.services } }).populate('serviceName');
 
-            const htmlContent = `<!DOCTYPE html>
+            const htmlContent = `
+            <!DOCTYPE html>
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
@@ -181,40 +146,32 @@ const generatePDF = async (saleData) => {
                     <p><strong>Invoice Amount in Words:</strong> ${convertNumberToWords(saleData.totalAmount)} Only</p>
 
                     <div class="terms">
-                        <p>Terms and Conditions:</p>
-                        <p>1. Payment is due within 30 days.</p>
-                        <p>2. Please refer to the attached document for detailed terms.</p>
+                        <p><strong>Terms and Conditions:</strong></p>
+                        <p>Thank you for doing business with us.</p>
                     </div>
 
                     <div class="signature">
-                        <p>Authorized Signature</p>
+                        <p>For A S:</p>
+                        <p>__________________________</p>
+                        <p>Authorized Signatory</p>
                     </div>
                 </div>
             </body>
-            </html>
-            `;
+            </html>`;
 
-            // Launch browser with necessary flags
-            const browser = await puppeteer.launch({
-                executablePath: chromiumPath,
-                headless: true, // Run in headless mode
-                args: ['--no-sandbox', '--disable-setuid-sandbox'] // Add sandbox flags
-            });
+            // Launch puppeteer
+            const browser = await puppeteer.launch();
             const page = await browser.newPage();
 
-            // Set content and wait for it to be rendered
-            await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
+            // Set content to page
+            await page.setContent(htmlContent, { waitUntil: 'load' });
 
             // Generate PDF buffer
-            const pdfBuffer = await page.pdf({
-                format: 'A4',
-                printBackground: true
-            });
+            const pdfBuffer = await page.pdf({ format: 'A4' });
 
             // Close browser after PDF generation
             await browser.close();
 
-            // Resolve the promise with the PDF buffer
             resolve(pdfBuffer);
         } catch (error) {
             reject(error);
@@ -222,4 +179,12 @@ const generatePDF = async (saleData) => {
     });
 };
 
-module.exports = { generatePDF };
+// Utility function to convert numbers to words (for invoice amount)
+const convertNumberToWords = (num) => {
+    // Simplified conversion for demonstration
+    return "Ten Rupees and Eight Paise";
+};
+
+module.exports = {
+    generatePDF
+};
