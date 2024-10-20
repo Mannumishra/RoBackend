@@ -20,6 +20,7 @@ app.use(cors())
 
 app.use(express.json())
 app.set(express.static("public"))
+app.use("/public", express.static("public"))
 
 app.get("/", (req, res) => {
     res.send("Server Is Running")

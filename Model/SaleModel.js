@@ -34,6 +34,9 @@ const saleSchema = new mongoose.Schema({
     },
     billNo:{
         type:String
+    },
+    pdfPath:{
+        type:String
     }
 }, { timestamps: true })
 

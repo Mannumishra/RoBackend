@@ -1,14 +1,17 @@
+const fs = require('fs');
+const path = require('path');
+const puppeteer = require('puppeteer');
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 const saleModel = require("../Model/SaleModel");
-// const { generatePDF } = require("../utils/generatePDF");
-const fs = require('fs');
 const VenderModel = require("../Model/VenderModel");
+const { generatePDF } = require("../utils/generatePDF"); // Assuming generatePDF is exported from another file
 
 exports.createSale = async (req, res) => {
     try {
-        const { customer, mobileNumber, fieldExcutive, services, totalAmount, reciveAmount ,refNumber } = req.body;
+        const { customer, mobileNumber, fieldExcutive, services, totalAmount, reciveAmount, refNumber } = req.body;
 
+        // Check if the customer exists
         const existingCustomer = await CustmorModel.findById(customer);
         if (!existingCustomer) {
             return res.status(400).json({ message: "Customer not found" });
@@ -20,6 +23,7 @@ exports.createSale = async (req, res) => {
             return res.status(400).json({ message: "Field Executive not found" });
         }
 
+        // Fetch services
         const serviceObjects = await MyServiceModel.find({ _id: { $in: services } }).populate('serviceName');
         if (serviceObjects.length !== services.length) {
             return res.status(400).json({ message: "One or more services not found" });
@@ -29,13 +33,24 @@ exports.createSale = async (req, res) => {
         const saleCount = await saleModel.countDocuments();  // Get the count of sales
         const billNo = 1000 + saleCount;  // Start bill number from 1000 and increment by the number of sales
 
-        const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount,refNumber, billNo: billNo.toString() });
+        // Create new sale record
+        const newSale = new saleModel({
+            customer,
+            fieldExcutive,
+            mobileNumber,
+            services,
+            totalAmount,
+            reciveAmount,
+            refNumber,
+            billNo: billNo.toString()
+        });
         const savedSale = await newSale.save();
 
+        // Populate sale details
         const populatedSale = await saleModel
             .findById(savedSale._id)
-            .populate('customer')          // Populate customer details
-            .populate('fieldExcutive')     // Populate field executive details
+            .populate('customer')
+            .populate('fieldExcutive')
             .populate({
                 path: 'services',
                 populate: {
@@ -44,23 +59,26 @@ exports.createSale = async (req, res) => {
                 }
             });
 
-        // Delete the services that were part of the sale
-        // await MyServiceModel.deleteMany({ _id: { $in: services } });
+        // Generate PDF invoice
+        const pdfBuffer = await generatePDF(populatedSale);
+        const pdfFileName = `sale_invoice_${savedSale._id}.pdf`;
+        const pdfPath = path.join(__dirname, "../public", pdfFileName);
 
+        // Save the PDF to the public folder
+        fs.writeFileSync(pdfPath, pdfBuffer);
+
+        // Update sale record with PDF path
+        populatedSale.pdfPath = pdfFileName;
+        await populatedSale.save();
+
+        // Send response
         res.status(200).json({
             success: true,
             message: "Successfully created sale",
-            data: populatedSale
+            data: populatedSale,
+            pdfUrl: `/public/${pdfFileName}` // URL to download PDF
         });
-        // const pdfBuffer = await generatePDF(savedSale);
-        // fs.writeFileSync(`./${savedSale._id}.pdf`, pdfBuffer);
 
-        // res.set({
-        //     'Content-Type': 'application/pdf',
-        //     'Content-Disposition': `attachment; filename=sale-invoice-${savedSale._id}.pdf`,
-        //     'Content-Length': pdfBuffer.length
-        // });
-        // res.send(pdfBuffer);
     } catch (error) {
         console.log("Error:", error);
         res.status(500).json({ message: "Server Error", error });
