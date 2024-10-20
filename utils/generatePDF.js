@@ -1,8 +1,43 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core');
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
+const path = require('path');
 
-// Function to generate PDF invoice using Puppeteer
+const convertNumberToWords = (num) => {
+    if (num === 0) return "Zero";
+    
+    const belowTwenty = [
+        "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+        "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", 
+        "Seventeen", "Eighteen", "Nineteen"
+    ];
+    
+    const tens = [
+        "", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"
+    ];
+    
+    const aboveThousand = [
+        "", "Thousand", "Million", "Billion"
+    ];
+
+    const words = (n) => {
+        if (n < 20) return belowTwenty[n];
+        if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 > 0 ? " " + belowTwenty[n % 10] : "");
+        if (n < 1000) return belowTwenty[Math.floor(n / 100)] + " Hundred" + (n % 100 > 0 ? " " + words(n % 100) : "");
+        
+        for (let i = 0; i < aboveThousand.length; i++) {
+            const divisor = Math.pow(1000, i);
+            if (n < divisor * 1000) {
+                return words(Math.floor(n / divisor)) + " " + aboveThousand[i] + (n % divisor > 0 ? " " + words(n % divisor) : "");
+            }
+        }
+    };
+
+    return words(num).trim();
+};
+
+const chromiumPath = '/usr/bin/chromium-browser'; // Path to Chromium
+
 const generatePDF = async (saleData) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -146,32 +181,39 @@ const generatePDF = async (saleData) => {
                     <p><strong>Invoice Amount in Words:</strong> ${convertNumberToWords(saleData.totalAmount)} Only</p>
 
                     <div class="terms">
-                        <p><strong>Terms and Conditions:</strong></p>
-                        <p>Thank you for doing business with us.</p>
+                        <p>Terms and Conditions:</p>
+                        <p>1. Payment is due within 30 days.</p>
+                        <p>2. Please refer to the attached document for detailed terms.</p>
                     </div>
 
                     <div class="signature">
-                        <p>For A S:</p>
-                        <p>__________________________</p>
-                        <p>Authorized Signatory</p>
+                        <p>Authorized Signature</p>
                     </div>
                 </div>
             </body>
-            </html>`;
+            </html>
+            `;
 
-            // Launch puppeteer
-            const browser = await puppeteer.launch();
+            // Launch browser
+            const browser = await puppeteer.launch({
+                executablePath: chromiumPath,
+                headless: true // Run in headless mode
+            });
             const page = await browser.newPage();
 
-            // Set content to page
-            await page.setContent(htmlContent, { waitUntil: 'load' });
+            // Set content and wait for it to be rendered
+            await page.setContent(htmlContent, { waitUntil: 'domcontentloaded' });
 
             // Generate PDF buffer
-            const pdfBuffer = await page.pdf({ format: 'A4' });
+            const pdfBuffer = await page.pdf({
+                format: 'A4',
+                printBackground: true
+            });
 
             // Close browser after PDF generation
             await browser.close();
 
+            // Resolve the promise with the PDF buffer
             resolve(pdfBuffer);
         } catch (error) {
             reject(error);
@@ -179,12 +221,4 @@ const generatePDF = async (saleData) => {
     });
 };
 
-// Utility function to convert numbers to words (for invoice amount)
-const convertNumberToWords = (num) => {
-    // Simplified conversion for demonstration
-    return "Ten Rupees and Eight Paise";
-};
-
-module.exports = {
-    generatePDF
-};
+module.exports = { generatePDF };

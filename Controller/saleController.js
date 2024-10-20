@@ -1,11 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const puppeteer = require('puppeteer');
 const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 const saleModel = require("../Model/SaleModel");
 const VenderModel = require("../Model/VenderModel");
-const { generatePDF } = require("../utils/generatePDF"); // Assuming generatePDF is exported from another file
+const { generatePDF } = require("../utils/generatePDF");
 
 exports.createSale = async (req, res) => {
     try {
@@ -30,8 +29,8 @@ exports.createSale = async (req, res) => {
         }
 
         // Generate bill number using countDocuments()
-        const saleCount = await saleModel.countDocuments();  // Get the count of sales
-        const billNo = 1000 + saleCount;  // Start bill number from 1000 and increment by the number of sales
+        const saleCount = await saleModel.countDocuments();
+        const billNo = 1000 + saleCount;
 
         // Create new sale record
         const newSale = new saleModel({
@@ -84,6 +83,7 @@ exports.createSale = async (req, res) => {
         res.status(500).json({ message: "Server Error", error });
     }
 };
+
 
 
 
