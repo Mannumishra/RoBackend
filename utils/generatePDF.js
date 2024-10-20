@@ -3,6 +3,7 @@ const CustmorModel = require("../Model/CustmorModel");
 const MyServiceModel = require("../Model/ServiceModel");
 const path = require('path');
 
+// Convert number to words function
 const convertNumberToWords = (num) => {
     if (num === 0) return "Zero";
     
@@ -46,8 +47,7 @@ const generatePDF = async (saleData) => {
             // Fetch services details
             const services = await MyServiceModel.find({ _id: { $in: saleData.services } }).populate('serviceName');
 
-            const htmlContent = `
-            <!DOCTYPE html>
+            const htmlContent = `<!DOCTYPE html>
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
@@ -194,10 +194,11 @@ const generatePDF = async (saleData) => {
             </html>
             `;
 
-            // Launch browser
+            // Launch browser with necessary flags
             const browser = await puppeteer.launch({
                 executablePath: chromiumPath,
-                headless: true // Run in headless mode
+                headless: true, // Run in headless mode
+                args: ['--no-sandbox', '--disable-setuid-sandbox'] // Add sandbox flags
             });
             const page = await browser.newPage();
 
