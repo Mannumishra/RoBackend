@@ -317,7 +317,7 @@ const getPendingDataFE = async (req, res) => {
         // Find tasks with 'Pending' status, matching date, and Field Executive ID
         const pendingTasks = await TaskModel.find({ status: "Pending", date: date, fieldExecutiveName: feid })
             .populate({ path: 'customerName', select: "-__v -email -_id" })
-            .populate({ path: "fieldExecutiveName", select: '-__v -password -createdAt -updatedAt -email -_id' })
+            .populate({ path: "fieldExecutiveName", select: '-__v -password -createdAt -updatedAt -email ' })
             .populate({ path: 'lookingFor', select: '-__v -_id' })
             .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
 
