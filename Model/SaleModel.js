@@ -15,7 +15,7 @@ const saleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    refNumber:{
+    refNumber: {
         type: String,
         required: true
     },
@@ -32,11 +32,15 @@ const saleSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    billNo:{
-        type:String
+    billNo: {
+        type: String
     },
-    pdfPath:{
-        type:String
+    paymentType: {
+        type: String,
+        required: true
+    },
+    pdfPath: {
+        type: String
     }
 }, { timestamps: true })
 

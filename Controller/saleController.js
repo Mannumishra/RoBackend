@@ -7,7 +7,7 @@ const VenderModel = require("../Model/VenderModel");
 
 exports.createSale = async (req, res) => {
     try {
-        const { customer, mobileNumber, fieldExcutive, services, totalAmount, reciveAmount ,refNumber } = req.body;
+        const { customer, mobileNumber, fieldExcutive, services, totalAmount, reciveAmount ,refNumber , paymentType } = req.body;
 
         const existingCustomer = await CustmorModel.findById(customer);
         if (!existingCustomer) {
@@ -29,7 +29,7 @@ exports.createSale = async (req, res) => {
         const saleCount = await saleModel.countDocuments();  // Get the count of sales
         const billNo = 1000 + saleCount;  // Start bill number from 1000 and increment by the number of sales
 
-        const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount,refNumber, billNo: billNo.toString() });
+        const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount,refNumber, billNo: billNo.toString() ,paymentType });
         const savedSale = await newSale.save();
 
         const populatedSale = await saleModel
@@ -116,7 +116,7 @@ exports.getSaleById = async (req, res) => {
 // Update a sale
 exports.updateSale = async (req, res) => {
     try {
-        const { customer, mobileNumber, services, totalAmount, reciveAmount } = req.body;
+        const { customer, mobileNumber, services, totalAmount, reciveAmount , paymentType } = req.body;
 
         // Validate if customer exists
         const existingCustomer = await CustmorModel.findById(customer);
@@ -136,7 +136,8 @@ exports.updateSale = async (req, res) => {
             mobileNumber,
             services,
             totalAmount,
-            reciveAmount
+            reciveAmount,
+            paymentType
         }, { new: true });
 
         if (!updatedSale) {
