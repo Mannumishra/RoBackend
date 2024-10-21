@@ -13,7 +13,7 @@
         },
         services: {
             type: mongoose.Schema.ObjectId,
-            ref: "Service",
+            ref: "ItemService",
             required: true
         },
         fromDate: {

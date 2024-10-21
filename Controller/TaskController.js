@@ -277,6 +277,66 @@ const getPendingData = async (req, res) => {
 };
 
 
+const getTasksByDateFE = async (req, res) => {
+    try {
+        const { date, feid } = req.body;
+
+        // Check if both date and feid are provided
+        if (!date || !feid) {
+            return res.status(400).json({ success: false, message: "Date and Field Executive ID are required." });
+        }
+
+        // Find tasks that match the specified date and Field Executive ID
+        const tasks = await TaskModel.find({ date: date, fieldExecutiveName: feid })
+            .populate({ path: 'customerName', select: '-__v -email' })
+            .populate({ path: 'fieldExecutiveName', select: '-__v -password -createdAt -updatedAt -email -_id' })
+            .populate({ path: 'lookingFor', select: '-__v -_id' })
+            .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
+
+        if (tasks.length === 0) {
+            return res.status(404).json({ success: false, message: "No tasks found for this date and Field Executive ID." });
+        }
+
+        res.status(200).json({ success: true, data: tasks });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+
+const getPendingDataFE = async (req, res) => {
+    try {
+        const { date, feid } = req.body;
+
+        // Check if both date and feid are provided
+        if (!date || !feid) {
+            return res.status(400).json({ success: false, message: "Date and Field Executive ID are required." });
+        }
+
+        // Find tasks with 'Pending' status, matching date, and Field Executive ID
+        const pendingTasks = await TaskModel.find({ status: "Pending", date: date, fieldExecutiveName: feid })
+            .populate({ path: 'customerName', select: "-__v -email -_id" })
+            .populate({ path: "fieldExecutiveName", select: '-__v -password -createdAt -updatedAt -email -_id' })
+            .populate({ path: 'lookingFor', select: '-__v -_id' })
+            .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
+
+        // Check if there are any tasks found
+        if (pendingTasks.length === 0) {
+            return res.status(404).json({ success: false, message: "No pending tasks found for the provided date and Field Executive ID." });
+        }
+
+        // Return the pending tasks
+        return res.status(200).json({ success: true, data: pendingTasks });
+    } catch (error) {
+        console.log("Error fetching pending tasks:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });
+    }
+};
+
+
+
+
 const updateFieldExecutiveInTask = async (req, res) => {
     try {
         const { fieldExecutiveName ,taskId } = req.body; 
@@ -313,4 +373,5 @@ const updateFieldExecutiveInTask = async (req, res) => {
 
 
 
-module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone, getTasksByDate, getTasksByCoustmorePhone, getPendingData, updateFieldExecutiveInTask };
+module.exports = { createTask, getAllTasks, getTaskById, updateTask, deleteTask, getTasksByFieldExecutivePhone, getTasksByDate,
+     getTasksByCoustmorePhone, getPendingData, updateFieldExecutiveInTask ,getTasksByDateFE ,getPendingDataFE};

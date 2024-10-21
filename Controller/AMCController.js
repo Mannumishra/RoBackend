@@ -36,13 +36,7 @@ const createAMC = async (req, res) => {
         const populatedAmc = await amcModel.findById(savedAmc._id)
             .populate('clientName')
             .populate('userID')
-            .populate({
-                path: 'services',
-                populate: {
-                    path: 'serviceName',
-                    model: 'ItemService'
-                }
-            });
+            .populate('services');
         res.status(200).json({
             success: true,
             message: "AMC record created successfully",
@@ -60,13 +54,7 @@ const createAMC = async (req, res) => {
 // Get All AMC Records
 const getAllAMC = async (req, res) => {
     try {
-        const amcRecords = await amcModel.find().populate('clientName').populate('userID').populate({
-            path: 'services',
-            populate: {
-                path: 'serviceName',  // Populating serviceName from ItemService
-                model: 'ItemService'
-            }
-        });
+        const amcRecords = await amcModel.find().populate('clientName').populate('userID').populate('services');
         if (!amcRecords) {
             return res.status(404).json({
                 success: false,
@@ -88,13 +76,7 @@ const getAllAMC = async (req, res) => {
 // Get Single AMC by ID
 const getAMCById = async (req, res) => {
     try {
-        const amcRecord = await amcModel.findById(req.params.id).populate('clientName').populate('userID').populate({
-            path: 'services',
-            populate: {
-                path: 'serviceName',  // Populating serviceName from ItemService
-                model: 'ItemService'
-            }
-        });
+        const amcRecord = await amcModel.findById(req.params.id).populate('clientName').populate('userID').populate('services');
         if (!amcRecord) {
             return res.status(404).json({
                 success: false,
@@ -174,13 +156,7 @@ const deleteAMC = async (req, res) => {
 const getAllBYDateAMC = async (req, res) => {
     try {
         const { month, year } = req.body;
-        let amcRecords = await amcModel.find().populate('clientName').populate('userID').populate({
-            path: 'services',
-            populate: {
-                path: 'serviceName',  // Populating serviceName from ItemService
-                model: 'ItemService'
-            }
-        });
+        let amcRecords = await amcModel.find().populate('clientName').populate('userID').populate('services');
 
         if (month && year) {
             const monthInt = parseInt(month, 10);
@@ -209,6 +185,48 @@ const getAllBYDateAMC = async (req, res) => {
     }
 };
 
+const getAllBYDateAMCFE = async (req, res) => {
+    try {
+        const { month, year, feid } = req.body;
+        let amcRecords = await amcModel.find().populate('clientName').populate('userID').populate('services');
+
+        if (month && year) {
+            const monthInt = parseInt(month, 10);
+            const yearInt = parseInt(year, 10);
+            if (isNaN(monthInt) || monthInt < 1 || monthInt > 12 || isNaN(yearInt)) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid month or year. Please provide valid values."
+                });
+            }
+            amcRecords = amcRecords.filter(record => {
+                const fromDate = moment(record.fromDate, "DD/MM/YYYY");
+                return fromDate.month() + 1 === monthInt && fromDate.year() === yearInt;
+            });
+        }
+        // Filter by feid (userID)
+        if (feid) {
+            amcRecords = amcRecords.filter(record => record.userID._id.toString() === feid);
+        }
+        if(amcRecords.length===0){
+            return res.status(404).json({
+                success:false,
+                message:"No Record Found"
+            })
+        }
+        res.status(200).json({
+            success: true,
+            data: amcRecords
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
+
 
 
 module.exports = {
@@ -217,6 +235,6 @@ module.exports = {
     getAMCById,
     updateAMC,
     deleteAMC,
-    getAllBYDateAMC
-    // getAMCByMonthYear
+    getAllBYDateAMC,
+    getAllBYDateAMCFE
 };
