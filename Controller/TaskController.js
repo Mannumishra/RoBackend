@@ -289,7 +289,7 @@ const getTasksByDateFE = async (req, res) => {
         // Find tasks that match the specified date and Field Executive ID
         const tasks = await TaskModel.find({ date: date, fieldExecutiveName: feid })
             .populate({ path: 'customerName', select: '-__v -email' })
-            .populate({ path: 'fieldExecutiveName', select: '-__v -password -createdAt -updatedAt -email -_id' })
+            .populate({ path: 'fieldExecutiveName', select: '-__v -password -createdAt -updatedAt -email ' })
             .populate({ path: 'lookingFor', select: '-__v -_id' })
             .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
 
