@@ -68,19 +68,25 @@ const getCustomers = async (req, res) => {
                 // Extract all the 'nextVisit' dates from the details records
                 const nextVisitDates = details.map(detail => detail.nextVisit);
 
-                const address = `${customer.address}${customer.state}`;
+                // Concatenate state with address
+                const fullAddress = `${customer.address}${customer.state}`;
 
-                // Add the 'nextVisit' dates array to the customer data
-                return {
-                    ...customer.toObject(),  // Convert Mongoose document to plain JS object
-                    address: address, 
+                // Convert the customer to a plain object and remove the state field
+                const customerData = {
+                    ...customer.toObject(),
+                    address: fullAddress,   // Concatenate state with address
                     nextVisit: nextVisitDates.length > 0 ? nextVisitDates : null  // Add array of 'nextVisit' dates
                 };
+
+                // Delete the state field before returning the object
+                delete customerData.state;
+
+                return customerData;
             })
         );
 
         // Return the modified customer data with 'nextVisit' dates
-        const reverseData = customersWithNextVisits.reverse()
+        const reverseData = customersWithNextVisits.reverse();
         res.status(200).json({
             success: true,
             data: reverseData
@@ -93,6 +99,7 @@ const getCustomers = async (req, res) => {
         });
     }
 };
+
 
 
 // Get a single customer by ID
