@@ -77,9 +77,10 @@ const getCustomers = async (req, res) => {
         );
 
         // Return the modified customer data with 'nextVisit' dates
+        const reverseData = customersWithNextVisits.reverse()
         res.status(200).json({
             success: true,
-            data: customersWithNextVisits
+            data: reverseData
         });
     } catch (error) {
         console.log(error);

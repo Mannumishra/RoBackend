@@ -51,9 +51,10 @@ const createService = async (req, res) => {
 const getAllServices = async (req, res) => {
     try {
         const services = await ItemServiceModel.find();
+        const reverseData = services.reverse()
         res.status(200).json({
             success: true,
-            data: services,
+            data: reverseData,
         });
     } catch (error) {
         console.error(error);

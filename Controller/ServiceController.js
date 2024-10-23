@@ -61,9 +61,10 @@ const getAllServices = async (req, res) => {
             _id: { $nin: soldServiceIds }  // Exclude services that are sold
         }).populate({ path: "serviceName", select: "-__v" });
 
+        const reverseData = services.reverse()
         return res.status(200).json({
             success: true,
-            data: services
+            data: reverseData
         });
     } catch (error) {
         console.error(error);
@@ -80,10 +81,11 @@ const getTotalServices = async (req, res) => {
                 message: "Services Not Found"
             })
         }
+        const reverseData = data.reverse()
         res.status(200).json({
             success: true,
             message: "Record Found Successfully",
-            data: data
+            data: reverseData
         })
     } catch (error) {
         console.log(error)

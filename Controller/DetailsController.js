@@ -141,9 +141,10 @@ const getDetails = async (req, res) => {
             };
         });
 
+        const reverseData = sanitizedDetails.reverse()
         res.status(200).json({
             success: true,
-            data: sanitizedDetails
+            data: reverseData
         });
     } catch (error) {
         console.error("Error Fetching Details:", error);

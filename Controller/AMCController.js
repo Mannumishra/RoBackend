@@ -61,9 +61,10 @@ const getAllAMC = async (req, res) => {
                 message: "AMC record not found"
             });
         }
+        const resverseData = amcRecords.reverse()
         res.status(200).json({
             success: true,
-            data: amcRecords
+            data: resverseData
         });
     } catch (error) {
         res.status(500).json({
@@ -172,9 +173,10 @@ const getAllBYDateAMC = async (req, res) => {
                 return fromDate.month() + 1 === monthInt && fromDate.year() === yearInt;
             });
         }
+        const resverseData = amcRecords.reverse()
         res.status(200).json({
             success: true,
-            data: amcRecords
+            data: resverseData
         });
     } catch (error) {
         console.log(error);
@@ -214,9 +216,10 @@ const getAllBYDateAMCFE = async (req, res) => {
                 message:"No Record Found"
             })
         }
+        const resverseData = amcRecords.reverse()
         res.status(200).json({
             success: true,
-            data: amcRecords
+            data: resverseData
         });
     } catch (error) {
         console.log(error);

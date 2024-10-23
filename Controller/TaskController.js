@@ -49,7 +49,9 @@ const getAllTasks = async (req, res) => {
             .populate({ path: "fieldExecutiveName", select: '-__v -password -createdAt -updatedAt -email -_id' })
             .populate({ path: 'lookingFor', select: '-__v -_id' })
             .populate({ path: 'visitePurpose', select: '-lookingFor -__v -_id' });
-        res.status(200).json({ success: true, data: tasks });
+
+            const reverseData = tasks.reverse()
+        res.status(200).json({ success: true, data: reverseData });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -151,8 +153,8 @@ const getTasksByFieldExecutivePhone = async (req, res) => {
         if (tasks.length === 0) {
             return res.status(404).json({ success: false, message: "No tasks found for this field executive" });
         }
-
-        res.status(200).json({ success: true, data: tasks });
+        const reverseData = tasks.reverse()
+        res.status(200).json({ success: true, data: reverseData });
     } catch (error) {
         console.log(error)
         res.status(500).json({ success: false, message: error.message });
@@ -239,7 +241,9 @@ const getTasksByDate = async (req, res) => {
             return res.status(404).json({ success: false, message: "No tasks found for this date" });
         }
 
-        res.status(200).json({ success: true, data: tasks });
+        const reverseData = tasks.reverse()
+
+        res.status(200).json({ success: true, data: reverseData });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -267,8 +271,10 @@ const getPendingData = async (req, res) => {
             return res.status(404).json({ success: false, message: "No pending tasks found for the provided date." });
         }
 
+        const reverseData = pendingTasks.reverse()
+
         // Return the pending tasks
-        return res.status(200).json({ success: true, data: pendingTasks });
+        return res.status(200).json({ success: true, data: reverseData });
 
     } catch (error) {
         console.log("Error fetching pending tasks:", error);
@@ -297,7 +303,9 @@ const getTasksByDateFE = async (req, res) => {
             return res.status(404).json({ success: false, message: "No tasks found for this date and Field Executive ID." });
         }
 
-        res.status(200).json({ success: true, data: tasks });
+        const reverseData = tasks.reverse()
+
+        res.status(200).json({ success: true, data: reverseData });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -326,8 +334,10 @@ const getPendingDataFE = async (req, res) => {
             return res.status(404).json({ success: false, message: "No pending tasks found for the provided date and Field Executive ID." });
         }
 
+        const reverseData = pendingTasks.reverse()
+
         // Return the pending tasks
-        return res.status(200).json({ success: true, data: pendingTasks });
+        return res.status(200).json({ success: true, data: reverseData });
     } catch (error) {
         console.log("Error fetching pending tasks:", error);
         res.status(500).json({ success: false, message: "Internal Server Error", error: error.message });

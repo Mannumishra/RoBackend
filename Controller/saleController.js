@@ -7,7 +7,7 @@ const VenderModel = require("../Model/VenderModel");
 
 exports.createSale = async (req, res) => {
     try {
-        const { customer, mobileNumber, fieldExcutive, services, totalAmount, reciveAmount ,refNumber , paymentType } = req.body;
+        const { customer, mobileNumber, fieldExcutive, services, totalAmount, reciveAmount, refNumber, paymentType } = req.body;
 
         const existingCustomer = await CustmorModel.findById(customer);
         if (!existingCustomer) {
@@ -29,7 +29,7 @@ exports.createSale = async (req, res) => {
         const saleCount = await saleModel.countDocuments();  // Get the count of sales
         const billNo = 1000 + saleCount;  // Start bill number from 1000 and increment by the number of sales
 
-        const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount,refNumber, billNo: billNo.toString() ,paymentType });
+        const newSale = new saleModel({ customer, fieldExcutive, mobileNumber, services, totalAmount, reciveAmount, refNumber, billNo: billNo.toString(), paymentType });
         const savedSale = await newSale.save();
 
         const populatedSale = await saleModel
@@ -80,10 +80,11 @@ exports.getSales = async (req, res) => {
                 model: "ItemService" // Make sure this matches your ItemService model name
             }
         }).populate("fieldExcutive", "name email phoneNumber feuid");
+        const reverseData = sales.reverse()
         res.status(200).json({
             success: true,
             message: "Sales Found Successfully",
-            data: sales
+            data: reverseData
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error", error });
@@ -116,7 +117,7 @@ exports.getSaleById = async (req, res) => {
 // Update a sale
 exports.updateSale = async (req, res) => {
     try {
-        const { customer, mobileNumber, services, totalAmount, reciveAmount , paymentType } = req.body;
+        const { customer, mobileNumber, services, totalAmount, reciveAmount, paymentType } = req.body;
 
         // Validate if customer exists
         const existingCustomer = await CustmorModel.findById(customer);
@@ -215,11 +216,11 @@ exports.filterSales = async (req, res) => {
                 message: "No sales found for the given filters."
             });
         }
-
+        const reverseData = sales.reverse()
         res.status(200).json({
             success: true,
             message: "Sales filtered successfully",
-            data: sales
+            data: reverseData
         });
 
     } catch (error) {
@@ -227,6 +228,44 @@ exports.filterSales = async (req, res) => {
         res.status(500).json({ message: "Server Error", error });
     }
 };
+
+
+exports.getSaleByFEId = async (req, res) => {
+    try {
+        const { feid } = req.body
+        const record = await VenderModel.findById(feid)
+        if (!record) {
+            return res.status(404).json({
+                success: false,
+                message: "FE Id Invaild"
+            })
+        }
+        const data = await saleModel.find({ fieldExcutive: feid }).populate("customer").populate({
+            path: "services",
+            populate: {
+                path: "serviceName",
+                model: "ItemService" // Make sure this matches your ItemService model name
+            }
+        }).populate("fieldExcutive", "name email phoneNumber feuid");
+        if (!data) {
+            return res.status(404).json({
+                success: false,
+                message: "Record Not Found"
+            })
+        }
+        const reverseData = data.reverse()
+        res.status(200).json({
+            success: true,
+            message: "Record Found Successfully",
+            data: reverseData
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+}
 
 
 

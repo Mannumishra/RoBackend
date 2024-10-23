@@ -34,9 +34,10 @@ const createLookingFor = async (req, res) => {
 const getAllLookingFor = async (req, res) => {
     try {
         const lookingForEntries = await LookingModel.find();
+        const reverseData = lookingForEntries.reverse()
         res.status(200).json({
             success: true,
-            data: lookingForEntries
+            data: reverseData
         });
     } catch (error) {
         res.status(500).json({

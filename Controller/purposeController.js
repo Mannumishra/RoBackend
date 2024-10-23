@@ -59,9 +59,10 @@ const createPurpose = async (req, res) => {
 const getAllPurposes = async (req, res) => {
     try {
         const purposes = await PurposeModel.find().populate('lookingFor');
+        const reverseData = purposes.reverse()
         res.status(200).json({
             success: true,
-            data: purposes
+            data: reverseData
         });
     } catch (error) {
         res.status(500).json({
