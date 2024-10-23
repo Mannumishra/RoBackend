@@ -68,9 +68,12 @@ const getCustomers = async (req, res) => {
                 // Extract all the 'nextVisit' dates from the details records
                 const nextVisitDates = details.map(detail => detail.nextVisit);
 
+                const address = `${customer.address}${customer.state}`;
+
                 // Add the 'nextVisit' dates array to the customer data
                 return {
                     ...customer.toObject(),  // Convert Mongoose document to plain JS object
+                    address: address, 
                     nextVisit: nextVisitDates.length > 0 ? nextVisitDates : null  // Add array of 'nextVisit' dates
                 };
             })
