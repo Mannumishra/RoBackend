@@ -24,6 +24,22 @@ const saleSchema = new mongoose.Schema({
         ref: "Service",
         required: true
     },
+    totalDiscount:{
+        type: String,
+        required: true
+    },
+    totalTaxAmount:{
+        type: String,
+        required: true
+    },
+    totalQuantity:{
+        type: String,
+        required: true
+    },
+    subfinaltotal:{
+        type: String,
+        required: true
+    },
     totalAmount: {
         type: String,
         required: true
